@@ -111,7 +111,7 @@ struct VariableEditorView: View {
                 guard let url = try result.get().first else { return }
                 let accessed = url.startAccessingSecurityScopedResource()
                 defer { if accessed { url.stopAccessingSecurityScopedResource() } }
-                let values = try url.resourceValues(forKeys: [.contentTypeKey, .fileSizeKey])
+                let values = try url.resourceValues(forKeys: [.contentTypeKey])
                 pendingFile = PendingFile(
                     data: try Data(contentsOf: url),
                     filename: url.lastPathComponent,
