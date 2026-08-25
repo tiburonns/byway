@@ -1,0 +1,374 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B00000000000000000000001 /* BywayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000001 /* BywayApp.swift */; };
+		B00000000000000000000002 /* VariableKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000002 /* VariableKind.swift */; };
+		B00000000000000000000003 /* VariableValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000003 /* VariableValue.swift */; };
+		B00000000000000000000004 /* GlobalVariable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000004 /* GlobalVariable.swift */; };
+		B00000000000000000000005 /* StorageLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000005 /* StorageLocation.swift */; };
+		B00000000000000000000006 /* BywayArchive.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000006 /* BywayArchive.swift */; };
+		B00000000000000000000007 /* VariableRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000007 /* VariableRepository.swift */; };
+		B00000000000000000000008 /* VariableStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000008 /* VariableStore.swift */; };
+		B00000000000000000000009 /* ArchiveDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000009 /* ArchiveDocument.swift */; };
+		B0000000000000000000000A /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000A /* RootView.swift */; };
+		B0000000000000000000000B /* VariableListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000B /* VariableListView.swift */; };
+		B0000000000000000000000C /* VariableDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000C /* VariableDetailView.swift */; };
+		B0000000000000000000000D /* VariableEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000D /* VariableEditorView.swift */; };
+		B0000000000000000000000E /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000E /* HistoryView.swift */; };
+		B0000000000000000000000F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000F /* SettingsView.swift */; };
+		B00000000000000000000010 /* VariableEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000010 /* VariableEntity.swift */; };
+		B00000000000000000000011 /* IntentSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000011 /* IntentSupport.swift */; };
+		B00000000000000000000012 /* SetVariableIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000012 /* SetVariableIntents.swift */; };
+		B00000000000000000000013 /* GetVariableIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000013 /* GetVariableIntents.swift */; };
+		B00000000000000000000014 /* VariableOperationIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000014 /* VariableOperationIntents.swift */; };
+		B00000000000000000000015 /* ImportExportIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000015 /* ImportExportIntents.swift */; };
+		B00000000000000000000016 /* BywayShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000016 /* BywayShortcuts.swift */; };
+		B00000000000000000000017 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000017 /* Assets.xcassets */; };
+		B00000000000000000000018 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000018 /* PrivacyInfo.xcprivacy */; };
+		B00000000000000000000019 /* brand-mark.svg in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000019 /* brand-mark.svg */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A00000000000000000000001 /* BywayApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BywayApp.swift; sourceTree = "<group>"; };
+		A00000000000000000000002 /* VariableKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableKind.swift; sourceTree = "<group>"; };
+		A00000000000000000000003 /* VariableValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableValue.swift; sourceTree = "<group>"; };
+		A00000000000000000000004 /* GlobalVariable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalVariable.swift; sourceTree = "<group>"; };
+		A00000000000000000000005 /* StorageLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageLocation.swift; sourceTree = "<group>"; };
+		A00000000000000000000006 /* BywayArchive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BywayArchive.swift; sourceTree = "<group>"; };
+		A00000000000000000000007 /* VariableRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableRepository.swift; sourceTree = "<group>"; };
+		A00000000000000000000008 /* VariableStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableStore.swift; sourceTree = "<group>"; };
+		A00000000000000000000009 /* ArchiveDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveDocument.swift; sourceTree = "<group>"; };
+		A0000000000000000000000A /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		A0000000000000000000000B /* VariableListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableListView.swift; sourceTree = "<group>"; };
+		A0000000000000000000000C /* VariableDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableDetailView.swift; sourceTree = "<group>"; };
+		A0000000000000000000000D /* VariableEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableEditorView.swift; sourceTree = "<group>"; };
+		A0000000000000000000000E /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		A0000000000000000000000F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A00000000000000000000010 /* VariableEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableEntity.swift; sourceTree = "<group>"; };
+		A00000000000000000000011 /* IntentSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentSupport.swift; sourceTree = "<group>"; };
+		A00000000000000000000012 /* SetVariableIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetVariableIntents.swift; sourceTree = "<group>"; };
+		A00000000000000000000013 /* GetVariableIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetVariableIntents.swift; sourceTree = "<group>"; };
+		A00000000000000000000014 /* VariableOperationIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableOperationIntents.swift; sourceTree = "<group>"; };
+		A00000000000000000000015 /* ImportExportIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportExportIntents.swift; sourceTree = "<group>"; };
+		A00000000000000000000016 /* BywayShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BywayShortcuts.swift; sourceTree = "<group>"; };
+		A00000000000000000000017 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A00000000000000000000018 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		A00000000000000000000019 /* brand-mark.svg */ = {isa = PBXFileReference; lastKnownFileType = image.svg; path = "brand-mark.svg"; sourceTree = "<group>"; };
+		A0000000000000000000001A /* byway.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = byway.entitlements; sourceTree = "<group>"; };
+		A0000000000000000000001B /* byway.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = byway.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D00000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = ();
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E00000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				E00000000000000000000002 /* byway */,
+				E00000000000000000000009 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E00000000000000000000002 /* byway */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000001 /* BywayApp.swift */,
+				E00000000000000000000003 /* Domain */,
+				E00000000000000000000004 /* Persistence */,
+				E00000000000000000000005 /* Support */,
+				E00000000000000000000006 /* UI */,
+				E00000000000000000000007 /* Intents */,
+				E00000000000000000000008 /* Resources */,
+				A0000000000000000000001A /* byway.entitlements */,
+			);
+			path = byway;
+			sourceTree = "<group>";
+		};
+		E00000000000000000000003 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000004 /* GlobalVariable.swift */,
+				A00000000000000000000002 /* VariableKind.swift */,
+				A00000000000000000000003 /* VariableValue.swift */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		E00000000000000000000004 /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000006 /* BywayArchive.swift */,
+				A00000000000000000000005 /* StorageLocation.swift */,
+				A00000000000000000000007 /* VariableRepository.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		E00000000000000000000005 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000009 /* ArchiveDocument.swift */,
+				A00000000000000000000008 /* VariableStore.swift */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
+		E00000000000000000000006 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				A0000000000000000000000E /* HistoryView.swift */,
+				A0000000000000000000000A /* RootView.swift */,
+				A0000000000000000000000F /* SettingsView.swift */,
+				A0000000000000000000000C /* VariableDetailView.swift */,
+				A0000000000000000000000D /* VariableEditorView.swift */,
+				A0000000000000000000000B /* VariableListView.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		E00000000000000000000007 /* Intents */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000016 /* BywayShortcuts.swift */,
+				A00000000000000000000013 /* GetVariableIntents.swift */,
+				A00000000000000000000015 /* ImportExportIntents.swift */,
+				A00000000000000000000011 /* IntentSupport.swift */,
+				A00000000000000000000012 /* SetVariableIntents.swift */,
+				A00000000000000000000010 /* VariableEntity.swift */,
+				A00000000000000000000014 /* VariableOperationIntents.swift */,
+			);
+			path = Intents;
+			sourceTree = "<group>";
+		};
+		E00000000000000000000008 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000017 /* Assets.xcassets */,
+				A00000000000000000000018 /* PrivacyInfo.xcprivacy */,
+				A00000000000000000000019 /* brand-mark.svg */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		E00000000000000000000009 /* Products */ = {
+			isa = PBXGroup;
+			children = (A0000000000000000000001B /* byway.app */);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F00000000000000000000001 /* byway */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F00000000000000000000002 /* Build configuration list for PBXNativeTarget "byway" */;
+			buildPhases = (
+				D00000000000000000000002 /* Sources */,
+				D00000000000000000000001 /* Frameworks */,
+				D00000000000000000000003 /* Resources */,
+			);
+			buildRules = ();
+			dependencies = ();
+			name = byway;
+			productName = byway;
+			productReference = A0000000000000000000001B /* byway.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F00000000000000000000003 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					F00000000000000000000001 = { CreatedOnToolsVersion = 16.0; };
+				};
+			};
+			buildConfigurationList = F00000000000000000000004 /* Build configuration list for PBXProject "byway" */;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (en, Base);
+			mainGroup = E00000000000000000000001;
+			productRefGroup = E00000000000000000000009 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (F00000000000000000000001 /* byway */);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D00000000000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000017 /* Assets.xcassets in Resources */,
+				B00000000000000000000018 /* PrivacyInfo.xcprivacy in Resources */,
+				B00000000000000000000019 /* brand-mark.svg in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D00000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000001 /* BywayApp.swift in Sources */,
+				B00000000000000000000002 /* VariableKind.swift in Sources */,
+				B00000000000000000000003 /* VariableValue.swift in Sources */,
+				B00000000000000000000004 /* GlobalVariable.swift in Sources */,
+				B00000000000000000000005 /* StorageLocation.swift in Sources */,
+				B00000000000000000000006 /* BywayArchive.swift in Sources */,
+				B00000000000000000000007 /* VariableRepository.swift in Sources */,
+				B00000000000000000000008 /* VariableStore.swift in Sources */,
+				B00000000000000000000009 /* ArchiveDocument.swift in Sources */,
+				B0000000000000000000000A /* RootView.swift in Sources */,
+				B0000000000000000000000B /* VariableListView.swift in Sources */,
+				B0000000000000000000000C /* VariableDetailView.swift in Sources */,
+				B0000000000000000000000D /* VariableEditorView.swift in Sources */,
+				B0000000000000000000000E /* HistoryView.swift in Sources */,
+				B0000000000000000000000F /* SettingsView.swift in Sources */,
+				B00000000000000000000010 /* VariableEntity.swift in Sources */,
+				B00000000000000000000011 /* IntentSupport.swift in Sources */,
+				B00000000000000000000012 /* SetVariableIntents.swift in Sources */,
+				B00000000000000000000013 /* GetVariableIntents.swift in Sources */,
+				B00000000000000000000014 /* VariableOperationIntents.swift in Sources */,
+				B00000000000000000000015 /* ImportExportIntents.swift in Sources */,
+				B00000000000000000000016 /* BywayShortcuts.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		C00000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C00000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		C00000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = byway/byway.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = byway;
+				INFOPLIST_KEY_ITSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tiburonns.byway;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C00000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = byway/byway.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = byway;
+				INFOPLIST_KEY_ITSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tiburonns.byway;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F00000000000000000000002 /* Build configuration list for PBXNativeTarget "byway" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C00000000000000000000003 /* Debug */,
+				C00000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F00000000000000000000004 /* Build configuration list for PBXProject "byway" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C00000000000000000000001 /* Debug */,
+				C00000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F00000000000000000000003 /* Project object */;
+}
