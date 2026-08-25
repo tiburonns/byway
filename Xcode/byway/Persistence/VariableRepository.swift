@@ -426,17 +426,21 @@ actor VariableRepository {
     private func pruneHistory(storage: PreparedStorage, maximum: Int = 500) throws {
         let files = try fileManager.contentsOfDirectory(
             at: storage.history,
-            includingPropertiesForKeys: [.contentModificationDateKey],
+            includingPropertiesForKeys: nil,
             options: [.skipsHiddenFiles]
         )
         guard files.count > maximum else { return }
-        let sorted = files.sorted {
-            let lhs = (try? $0.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
-            let rhs = (try? $1.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
-            return lhs < rhs
+        let sorted = files.compactMap { url -> (url: URL, date: Date)? in
+            guard let data = try? Data(contentsOf: url),
+                  let change = try? decoder.decode(VariableChange.self, from: data) else {
+                return nil
+            }
+            return (url, change.timestamp)
+        }.sorted {
+            $0.date < $1.date
         }
-        for url in sorted.prefix(files.count - maximum) {
-            try? fileManager.removeItem(at: url)
+        for item in sorted.prefix(max(0, sorted.count - maximum)) {
+            try? fileManager.removeItem(at: item.url)
         }
     }
 
