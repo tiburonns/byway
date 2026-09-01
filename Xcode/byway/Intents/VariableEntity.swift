@@ -46,6 +46,41 @@ struct VariableQuery: EntityStringQuery {
     }
 }
 
+struct VariableFolderEntity: AppEntity, Identifiable, Sendable {
+    static let typeDisplayRepresentation: TypeDisplayRepresentation = "byway Folder"
+    static let defaultQuery = VariableFolderQuery()
+
+    var id: UUID
+    var name: String
+
+    var displayRepresentation: DisplayRepresentation {
+        DisplayRepresentation(title: "\(name)", image: .init(systemName: "folder"))
+    }
+
+    init(_ folder: VariableFolder) {
+        id = folder.id
+        name = folder.name
+    }
+}
+
+struct VariableFolderQuery: EntityStringQuery {
+    func entities(for identifiers: [UUID]) async throws -> [VariableFolderEntity] {
+        try await VariableRepository.shared.listFolders()
+            .filter { identifiers.contains($0.id) }
+            .map(VariableFolderEntity.init)
+    }
+
+    func entities(matching string: String) async throws -> [VariableFolderEntity] {
+        try await VariableRepository.shared.listFolders()
+            .filter { $0.name.localizedCaseInsensitiveContains(string) }
+            .map(VariableFolderEntity.init)
+    }
+
+    func suggestedEntities() async throws -> [VariableFolderEntity] {
+        try await VariableRepository.shared.listFolders().map(VariableFolderEntity.init)
+    }
+}
+
 enum ImportMode: String, AppEnum {
     case keepExisting
     case overwrite

@@ -8,9 +8,18 @@ struct SettingsView: View {
     @State private var isImporting = false
     @State private var importStrategy: ImportStrategy = .overwrite
     @State private var statusMessage: String?
+    @AppStorage(AppLanguage.storageKey) private var languageValue = AppLanguage.system.rawValue
 
     var body: some View {
         Form {
+            Section("Language") {
+                Picker("App language", selection: $languageValue) {
+                    ForEach(AppLanguage.allCases) { language in
+                        Text(language.titleKey).tag(language.rawValue)
+                    }
+                }
+            }
+
             Section("Storage") {
                 LabeledContent("Location") {
                     Label(
@@ -27,7 +36,7 @@ struct SettingsView: View {
             Section("Backup and sharing") {
                 Picker("When importing", selection: $importStrategy) {
                     ForEach(ImportStrategy.allCases) { strategy in
-                        Text(strategy.title).tag(strategy)
+                        Text(LocalizedStringKey(strategy.title)).tag(strategy)
                     }
                 }
 
@@ -49,7 +58,11 @@ struct SettingsView: View {
                     Task {
                         do {
                             let count = try await store.removeExpired()
-                            statusMessage = "Removed \(count) expired variable\(count == 1 ? "" : "s")."
+                            statusMessage = localizedCount(
+                                count,
+                                singular: "Removed %lld expired variable.",
+                                plural: "Removed %lld expired variables."
+                            )
                         } catch {
                             statusMessage = error.localizedDescription
                         }
@@ -58,7 +71,7 @@ struct SettingsView: View {
             }
 
             Section("Shortcuts") {
-                Text("Open Shortcuts and search for “byway” to set, get, delete, toggle, increment, append, import, or export persistent variables.")
+                Text("Open Shortcuts and search for “byway” to use typed variables, atomic transactions, structured events, dictionary paths, list operations, metadata, UUIDs, and portable archives.")
                     .font(.callout)
             }
 
@@ -110,9 +123,20 @@ struct SettingsView: View {
             let accessed = url.startAccessingSecurityScopedResource()
             defer { if accessed { url.stopAccessingSecurityScopedResource() } }
             let count = try await store.importArchive(Data(contentsOf: url), strategy: importStrategy)
-            statusMessage = "Imported \(count) variable\(count == 1 ? "" : "s")."
+            statusMessage = localizedCount(
+                count,
+                singular: "Imported %lld variable.",
+                plural: "Imported %lld variables."
+            )
         } catch {
             statusMessage = error.localizedDescription
         }
+    }
+
+    private func localizedCount(_ count: Int, singular: String, plural: String) -> String {
+        let language = AppLanguage(rawValue: languageValue) ?? .system
+        let key = count == 1 ? singular : plural
+        let format = String(localized: String.LocalizationValue(key), locale: language.locale)
+        return String.localizedStringWithFormat(format, count)
     }
 }

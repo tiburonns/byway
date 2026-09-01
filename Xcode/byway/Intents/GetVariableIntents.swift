@@ -10,7 +10,7 @@ struct GetVariableIntent: AppIntent {
     @Parameter(title: "Key") var key: String
 
     static var parameterSummary: some ParameterSummary {
-        Summary("Get \(.$key)")
+        Summary("Get \(\.$key)")
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
@@ -217,10 +217,9 @@ struct GetLocationVariableIntent: AppIntent {
 
     func perform() async throws -> some IntentResult & ReturnsValue<URL> {
         let variable = try await IntentSupport.variable(key: key, expected: .location)
-        guard case .location(let location) = variable.value,
-              let url = URL(string: "https://maps.apple.com/?ll=\(location.latitude),\(location.longitude)") else {
+        guard case .location(let location) = variable.value else {
             throw BywayError.invalidValue("Invalid location value.")
         }
-        return .result(value: url)
+        return .result(value: try IntentSupport.mapsURL(for: location))
     }
 }

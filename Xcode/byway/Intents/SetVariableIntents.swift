@@ -15,7 +15,7 @@ struct SetTextVariableIntent: AppIntent {
     @Parameter(title: "Expiration Date") var expiresAt: Date?
 
     static var parameterSummary: some ParameterSummary {
-        Summary("Set \(.$key) to \(.$value)")
+        Summary("Set \(\.$key) to \(\.$value)")
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
@@ -229,22 +229,16 @@ struct SetFileVariableIntent: AppIntent {
     @Parameter(title: "Key") var key: String
     @Parameter(
         title: "File",
-        supportedContentTypes: [.data],
+        supportedTypeIdentifiers: ["public.data"],
         inputConnectionBehavior: .connectToPreviousIntentResult
     ) var file: IntentFile
     @Parameter(title: "Expiration Date") var expiresAt: Date?
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        guard let sourceURL = file.fileURL else {
-            throw BywayError.invalidValue("Shortcuts did not provide a readable file.")
-        }
-        let accessed = sourceURL.startAccessingSecurityScopedResource()
-        defer { if accessed { sourceURL.stopAccessingSecurityScopedResource() } }
-        let values = try sourceURL.resourceValues(forKeys: [.contentTypeKey])
         let stored = try await VariableRepository.shared.saveFile(
-            data: Data(contentsOf: sourceURL),
-            filename: sourceURL.lastPathComponent,
-            contentType: values.contentType?.identifier ?? UTType.data.identifier
+            data: IntentSupport.data(for: file),
+            filename: file.filename,
+            contentType: file.type?.identifier ?? UTType.data.identifier
         )
         _ = try await VariableRepository.shared.set(key: key, value: .file(stored), expiresAt: expiresAt)
         return .result(dialog: "Stored \(stored.filename) in \(key).")
@@ -259,20 +253,15 @@ struct SetDataVariableIntent: AppIntent {
     @Parameter(title: "Key") var key: String
     @Parameter(
         title: "Data",
-        supportedContentTypes: [.data],
+        supportedTypeIdentifiers: ["public.data"],
         inputConnectionBehavior: .connectToPreviousIntentResult
     ) var input: IntentFile
     @Parameter(title: "Expiration Date") var expiresAt: Date?
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        guard let url = input.fileURL else {
-            throw BywayError.invalidValue("Shortcuts did not provide readable data.")
-        }
-        let accessed = url.startAccessingSecurityScopedResource()
-        defer { if accessed { url.stopAccessingSecurityScopedResource() } }
         _ = try await VariableRepository.shared.set(
             key: key,
-            value: .data(Data(contentsOf: url)),
+            value: .data(IntentSupport.data(for: input)),
             expiresAt: expiresAt
         )
         return .result(dialog: "Saved binary data in \(key).")

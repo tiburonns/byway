@@ -22,8 +22,7 @@ struct VariableExistsIntent: AppIntent {
     @Parameter(title: "Key") var key: String
 
     func perform() async throws -> some IntentResult & ReturnsValue<Bool> {
-        let exists = (try? await VariableRepository.shared.variable(forKey: key)) != nil
-        return .result(value: exists)
+        .result(value: try await VariableRepository.shared.exists(key: key))
     }
 }
 
@@ -49,7 +48,7 @@ struct IncrementVariableIntent: AppIntent {
     @Parameter(title: "Amount", default: 1) var amount: Double
 
     static var parameterSummary: some ParameterSummary {
-        Summary("Increment \(.$key) by \(.$amount)")
+        Summary("Increment \(\.$key) by \(\.$amount)")
     }
 
     func perform() async throws -> some IntentResult & ReturnsValue<Double> & ProvidesDialog {
@@ -124,11 +123,11 @@ struct RenameVariableIntent: AppIntent {
 
 struct SetDictionaryEntryIntent: AppIntent {
     static let title: LocalizedStringResource = "Set Dictionary Entry"
-    static let description = IntentDescription("Set one field in a stored dictionary using a JSON value.")
+    static let description = IntentDescription("Set a dot-separated path in a stored dictionary using a JSON value.")
     static let openAppWhenRun = false
 
     @Parameter(title: "Variable Key") var key: String
-    @Parameter(title: "Field") var field: String
+    @Parameter(title: "Path") var field: String
     @Parameter(title: "JSON Value") var jsonValue: String
 
     func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
@@ -141,11 +140,11 @@ struct SetDictionaryEntryIntent: AppIntent {
 
 struct RemoveDictionaryEntryIntent: AppIntent {
     static let title: LocalizedStringResource = "Remove Dictionary Entry"
-    static let description = IntentDescription("Remove one field from a stored dictionary.")
+    static let description = IntentDescription("Remove a dot-separated path from a stored dictionary.")
     static let openAppWhenRun = false
 
     @Parameter(title: "Variable Key") var key: String
-    @Parameter(title: "Field") var field: String
+    @Parameter(title: "Path") var field: String
 
     func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
         let result = try await VariableRepository.shared.removeDictionaryEntry(key: key, field: field)

@@ -1,0 +1,48 @@
+{
+  "name": "Byway — Español",
+  "subtitle": "Datos persistentes para Atajos de Apple",
+  "description": "Instala Byway y su flujo completo de Atajos en español e inglés.",
+  "iconURL": "https://raw.githubusercontent.com/tiburonns/byway/main/Xcode/byway/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon-512.png",
+  "website": "https://github.com/tiburonns/byway",
+  "tintColor": "#0A84FF",
+  "featuredApps": [
+    "com.tiburonns.byway"
+  ],
+  "apps": [
+    {
+      "name": "Byway",
+      "bundleIdentifier": "com.tiburonns.byway",
+      "developerName": "tiburonns",
+      "subtitle": "Datos persistentes para Atajos",
+      "localizedDescription": "Una capa de datos privada y tipada para Atajos de Apple. Guarda en tu dispositivo variables compartidas, historial, navegación, estacionamiento, música, Casa y estado del sistema.",
+      "iconURL": "https://raw.githubusercontent.com/tiburonns/byway/main/Xcode/byway/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon-512.png",
+      "tintColor": "#0A84FF",
+      "category": "utilities",
+      "versions": [
+        {
+          "version": "0.4.0",
+          "buildVersion": "4",
+          "date": "2026-09-01",
+          "localizedDescription": "Añade la aplicación en español e inglés, un selector de idioma, la colección completa de Atajos bilingües, la importación del Esquema 3 y fechas automáticas al cambiar de modo.",
+          "downloadURL": "https://github.com/tiburonns/byway/releases/download/v0.4.0/Byway-0.4.0.ipa",
+          "size": 763270,
+          "minOSVersion": "17.0"
+        }
+      ],
+      "appPermissions": {
+        "entitlements": [],
+        "privacy": {}
+      }
+    }
+  ],
+  "news": [
+    {
+      "title": "Byway 0.4.0 ya está disponible",
+      "identifier": "byway-0.4.0-es",
+      "caption": "Aplicación y Atajos bilingües, selector de idioma y una instalación más sencilla.",
+      "date": "2026-09-01",
+      "tintColor": "#0A84FF",
+      "notify": true
+    }
+  ]
+}

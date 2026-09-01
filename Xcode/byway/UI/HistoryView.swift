@@ -19,7 +19,7 @@ struct HistoryView: View {
                             .frame(width: 28)
                         VStack(alignment: .leading, spacing: 3) {
                             Text(change.key).font(.headline)
-                            Text(change.operation.rawValue.capitalized)
+                            Text(title(for: change.operation))
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
@@ -50,6 +50,16 @@ struct HistoryView: View {
         case .delete: "trash.circle.fill"
         case .restore: "arrow.uturn.backward.circle.fill"
         case .importVariables: "square.and.arrow.down.fill"
+        }
+    }
+
+    private func title(for operation: ChangeOperation) -> LocalizedStringKey {
+        switch operation {
+        case .create: "Created"
+        case .update: "Updated"
+        case .delete: "Deleted"
+        case .restore: "Restored"
+        case .importVariables: "Imported"
         }
     }
 

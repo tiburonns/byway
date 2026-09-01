@@ -11,6 +11,7 @@ struct GlobalVariable: Codable, Hashable, Identifiable, Sendable {
     var updatedAt: Date
     var expiresAt: Date?
     var revision: Int
+    var folderID: UUID?
 
     init(
         id: UUID = UUID(),
@@ -22,7 +23,8 @@ struct GlobalVariable: Codable, Hashable, Identifiable, Sendable {
         createdAt: Date = .now,
         updatedAt: Date = .now,
         expiresAt: Date? = nil,
-        revision: Int = 1
+        revision: Int = 1,
+        folderID: UUID? = nil
     ) {
         self.id = id
         self.key = key
@@ -34,10 +36,30 @@ struct GlobalVariable: Codable, Hashable, Identifiable, Sendable {
         self.updatedAt = updatedAt
         self.expiresAt = expiresAt
         self.revision = revision
+        self.folderID = folderID
     }
 
     var isExpired: Bool {
         expiresAt.map { $0 <= .now } ?? false
+    }
+}
+
+struct VariableFolder: Codable, Hashable, Identifiable, Sendable {
+    var id: UUID
+    var name: String
+    var createdAt: Date
+    var updatedAt: Date
+
+    init(
+        id: UUID = UUID(),
+        name: String,
+        createdAt: Date = .now,
+        updatedAt: Date = .now
+    ) {
+        self.id = id
+        self.name = name
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
     }
 }
 

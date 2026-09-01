@@ -147,13 +147,17 @@ indirect enum VariableValue: Codable, Hashable, Sendable {
         case let value as Bool:
             return .boolean(value)
         case let value as NSNumber:
-            let double = value.doubleValue
-            if floor(double) == double,
-               double >= Double(Int64.min),
-               double <= Double(Int64.max) {
-                return .integer(value.int64Value)
+            if let decimal = Decimal(string: value.stringValue) {
+                var source = decimal
+                var rounded = Decimal()
+                NSDecimalRound(&rounded, &source, 0, .plain)
+                if rounded == decimal,
+                   decimal >= Decimal(Int64.min),
+                   decimal <= Decimal(Int64.max) {
+                    return .integer(NSDecimalNumber(decimal: decimal).int64Value)
+                }
             }
-            return .number(double)
+            return .number(value.doubleValue)
         case let values as [Any]:
             return .array(try values.map(fromJSONObject))
         case let values as [String: Any]:

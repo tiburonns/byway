@@ -1,0 +1,666 @@
+{
+  "attachments" : {
+
+  },
+  "exportedAt" : "2026-09-01T06:07:18Z",
+  "folders" : [
+
+  ],
+  "variables" : [
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "17A0D6E7-3778-46DF-AD4E-B83D4FBB38AC",
+      "isFavorite" : false,
+      "key" : "SYS.SchemaVersion",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "integer" : {
+          "_0" : 3
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "9A536006-50A4-4F21-841C-537FD8F0136D",
+      "isFavorite" : false,
+      "key" : "SYS.Initialized",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "boolean" : {
+          "_0" : true
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "899B6C14-DCF4-4C6E-BA7D-8E20CB5A001C",
+      "isFavorite" : false,
+      "key" : "SYS.Mode",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "text" : {
+          "_0" : "Normal"
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "438B7EC1-1211-443E-B727-1E94A9A99C0D",
+      "isFavorite" : false,
+      "key" : "SYS.ModeChangedAt",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "date" : {
+          "_0" : "2026-09-01T06:07:18Z"
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "35FC003A-DEF5-4198-88A0-C59AD29D75E1",
+      "isFavorite" : false,
+      "key" : "SYS.LastAction",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "C5E63514-3394-4E2C-AA9A-42A9635298BF",
+      "isFavorite" : false,
+      "key" : "SYS.LastActionAt",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "974FC09A-C6E1-4B74-938B-5698117CC00E",
+      "isFavorite" : false,
+      "key" : "SYS.LastSource",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "9D2907E6-152E-47D3-8BB4-F1D3B57A409C",
+      "isFavorite" : false,
+      "key" : "SYS.Settings",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "dictionary" : {
+          "_0" : {
+            "autoAddShazam" : {
+              "boolean" : {
+                "_0" : true
+              }
+            },
+            "autoSaveParking" : {
+              "boolean" : {
+                "_0" : true
+              }
+            },
+            "historyEnabled" : {
+              "boolean" : {
+                "_0" : true
+              }
+            },
+            "homeLoggingEnabled" : {
+              "boolean" : {
+                "_0" : true
+              }
+            },
+            "navigationResume" : {
+              "boolean" : {
+                "_0" : true
+              }
+            },
+            "notificationsEnabled" : {
+              "boolean" : {
+                "_0" : true
+              }
+            },
+            "rememberMenuSelection" : {
+              "boolean" : {
+                "_0" : true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "CD51E0B9-0118-458A-80E3-6A74047511BE",
+      "isFavorite" : false,
+      "key" : "UI.LastSelection",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "dictionary" : {
+          "_0" : {
+
+          }
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "9C0FBD07-ABBA-4ED2-A797-14EEA05905ED",
+      "isFavorite" : false,
+      "key" : "NAV.Active",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "boolean" : {
+          "_0" : false
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "9F8D57FB-995F-405F-97EE-79A314D48517",
+      "isFavorite" : false,
+      "key" : "NAV.SessionID",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "7A7699B0-C508-4B6E-9E9C-2A40D3A7CA08",
+      "isFavorite" : false,
+      "key" : "NAV.Destination",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "6CAD9185-2D35-4126-858C-133AA81EF9BE",
+      "isFavorite" : false,
+      "key" : "NAV.Name",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "5828217D-243E-4B90-AD3E-891B74DC664B",
+      "isFavorite" : false,
+      "key" : "NAV.Transport",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "text" : {
+          "_0" : "Driving"
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "86481037-A57F-4488-AE99-E3D33DDF5C2F",
+      "isFavorite" : false,
+      "key" : "NAV.Provider",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "text" : {
+          "_0" : "AppleMaps"
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "C5CDA1AC-DDD0-4501-B2C9-25915B807F47",
+      "isFavorite" : false,
+      "key" : "NAV.StartedAt",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "0AA2625D-B418-4BC8-A92E-7E930D161ED3",
+      "isFavorite" : false,
+      "key" : "NAV.LastUpdatedAt",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "E8A4E047-6CE1-44F2-BF24-C8D92C59FBB8",
+      "isFavorite" : false,
+      "key" : "NAV.ResumeCount",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "integer" : {
+          "_0" : 0
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "B37A473D-480C-4FAB-8CFC-0F03146AC606",
+      "isFavorite" : false,
+      "key" : "CAR.ParkedValid",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "boolean" : {
+          "_0" : false
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "939FB2EC-F088-469B-9BEF-293E78EBE46B",
+      "isFavorite" : false,
+      "key" : "CAR.ParkingID",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "4FB39C5B-C9E2-4001-B8A3-2DBC1908C68A",
+      "isFavorite" : false,
+      "key" : "CAR.ParkedLocation",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "D191BC19-E126-45EE-A309-18794A7A9BDC",
+      "isFavorite" : false,
+      "key" : "CAR.ParkedAt",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "A59AB4FA-8A84-42C4-AB73-D93C8AB298E1",
+      "isFavorite" : false,
+      "key" : "CAR.ParkedAddress",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "E134CEFB-254D-4C4A-A7D1-7FC5EF78AA87",
+      "isFavorite" : false,
+      "key" : "CAR.ParkedSource",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "E01E9088-1BEF-4DF5-94AC-7E8B780FC26D",
+      "isFavorite" : false,
+      "key" : "MUSIC.HasLast",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "boolean" : {
+          "_0" : false
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "8B6B4E07-D99B-4920-A984-18E96A3A0647",
+      "isFavorite" : false,
+      "key" : "MUSIC.LastID",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "64EDC88F-8938-47C2-BBCC-2C8560B0F4B5",
+      "isFavorite" : false,
+      "key" : "MUSIC.LastTitle",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "700541AA-D648-42F3-A299-9D5FFE91DAC5",
+      "isFavorite" : false,
+      "key" : "MUSIC.LastArtist",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "3E99E701-3C14-4504-8944-5878C5A75496",
+      "isFavorite" : false,
+      "key" : "MUSIC.LastAlbum",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "6039B2A3-9DBE-4D8B-AE11-15E06D54C184",
+      "isFavorite" : false,
+      "key" : "MUSIC.LastURL",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "BD845538-F96A-4B07-8B68-4B20CABA639B",
+      "isFavorite" : false,
+      "key" : "MUSIC.LastShazamAt",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "962410D4-EDD1-4435-AD60-5E1B646D342C",
+      "isFavorite" : false,
+      "key" : "MUSIC.LastAddedToLibrary",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "boolean" : {
+          "_0" : false
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "CB416380-E479-4EFA-B581-63BBF3B9CFAE",
+      "isFavorite" : false,
+      "key" : "HOME.Initialized",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "boolean" : {
+          "_0" : false
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "D8819959-9285-4DFC-94D1-0580B38FF51B",
+      "isFavorite" : false,
+      "key" : "HOME.State",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "dictionary" : {
+          "_0" : {
+
+          }
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "7FB0942D-D364-4D91-A72D-608262F9AB05",
+      "isFavorite" : false,
+      "key" : "HOME.LastSyncAt",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "null" : {
+
+        }
+      }
+    },
+    {
+      "createdAt" : "2026-09-01T06:07:18Z",
+      "id" : "DAE394F7-09E5-4271-AA19-AFA79621E53A",
+      "isFavorite" : false,
+      "key" : "HISTORY.Events",
+      "notes" : "",
+      "revision" : 1,
+      "tags" : [
+
+      ],
+      "updatedAt" : "2026-09-01T06:07:18Z",
+      "value" : {
+        "array" : {
+          "_0" : [
+
+          ]
+        }
+      }
+    }
+  ],
+  "version" : 2
+}

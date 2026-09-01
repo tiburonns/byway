@@ -5,6 +5,7 @@ import Observation
 @Observable
 final class VariableStore {
     private(set) var variables: [GlobalVariable] = []
+    private(set) var folders: [VariableFolder] = []
     private(set) var changes: [VariableChange] = []
     private(set) var storageStatus: StorageStatus?
     var isLoading = false
@@ -21,9 +22,11 @@ final class VariableStore {
         defer { isLoading = false }
         do {
             async let variables = repository.list(matching: query)
+            async let folders = repository.listFolders()
             async let changes = repository.history()
             async let status = repository.storageStatus()
             self.variables = try await variables
+            self.folders = try await folders
             self.changes = try await changes
             self.storageStatus = try await status
             errorMessage = nil
@@ -66,6 +69,31 @@ final class VariableStore {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    func createFolder(name: String) async throws {
+        _ = try await repository.createFolder(name: name)
+        await refresh()
+    }
+
+    func renameFolder(_ folder: VariableFolder, name: String) async throws {
+        _ = try await repository.renameFolder(id: folder.id, name: name)
+        await refresh()
+    }
+
+    func deleteFolder(_ folder: VariableFolder) async throws {
+        try await repository.deleteFolder(id: folder.id)
+        await refresh()
+    }
+
+    func moveVariables(ids: Set<UUID>, to folderID: UUID?) async throws {
+        _ = try await repository.moveVariables(ids: ids, to: folderID)
+        await refresh()
+    }
+
+    func deleteVariables(ids: Set<UUID>) async throws {
+        _ = try await repository.deleteVariables(ids: ids)
+        await refresh()
     }
 
     func setFavorite(_ isFavorite: Bool, for variable: GlobalVariable) async {

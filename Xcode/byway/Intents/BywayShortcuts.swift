@@ -35,5 +35,47 @@ struct BywayShortcuts: AppShortcutsProvider {
             shortTitle: "Increment Variable",
             systemImageName: "plus.forwardslash.minus"
         )
+
+        AppShortcut(
+            intent: AppendEventIntent(),
+            phrases: ["Log an event in \(.applicationName)"],
+            shortTitle: "Append Event",
+            systemImageName: "clock.badge.plus"
+        )
+
+        AppShortcut(
+            intent: QueryEventsIntent(),
+            phrases: ["Query events in \(.applicationName)"],
+            shortTitle: "Query Events",
+            systemImageName: "line.3.horizontal.decrease.circle"
+        )
+
+        AppShortcut(
+            intent: GetLastEventIntent(),
+            phrases: ["Get the last event from \(.applicationName)"],
+            shortTitle: "Last Event",
+            systemImageName: "clock.arrow.circlepath"
+        )
+
+        AppShortcut(
+            intent: GetVariableMetadataIntent(),
+            phrases: ["Inspect a variable in \(.applicationName)"],
+            shortTitle: "Variable Metadata",
+            systemImageName: "info.circle"
+        )
+
+        AppShortcut(
+            intent: GenerateUUIDIntent(),
+            phrases: ["Generate a UUID with \(.applicationName)"],
+            shortTitle: "Generate UUID",
+            systemImageName: "number.square"
+        )
+
+        AppShortcut(
+            intent: ExportVariablesIntent(),
+            phrases: ["Export variables from \(.applicationName)"],
+            shortTitle: "Export Variables",
+            systemImageName: "square.and.arrow.up"
+        )
     }
 }

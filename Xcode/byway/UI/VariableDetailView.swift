@@ -30,9 +30,11 @@ struct VariableDetailView: View {
                     }
 
                     Section("Details") {
-                        LabeledContent("Type", value: variable.value.kind.title)
+                        LabeledContent("Type") {
+                            Text(LocalizedStringKey(variable.value.kind.title))
+                        }
                         LabeledContent("Revision", value: variable.revision.formatted())
-                        LabeledContent("Updated") {
+                        LabeledContent("Last updated") {
                             Text(variable.updatedAt, format: .dateTime)
                         }
                         if let expiresAt = variable.expiresAt {
@@ -75,7 +77,7 @@ private struct ValuePreview: View {
     var body: some View {
         switch value {
         case .boolean(let value):
-            Label(value ? "True" : "False", systemImage: value ? "checkmark.circle.fill" : "xmark.circle")
+            Label(LocalizedStringKey(value ? "True" : "False"), systemImage: value ? "checkmark.circle.fill" : "xmark.circle")
         case .date(let value):
             Text(value, format: .dateTime)
         case .location(let location):

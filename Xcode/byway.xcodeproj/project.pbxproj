@@ -31,6 +31,10 @@
 		B00000000000000000000017 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000017 /* Assets.xcassets */; };
 		B00000000000000000000018 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000018 /* PrivacyInfo.xcprivacy */; };
 		B00000000000000000000019 /* brand-mark.svg in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000019 /* brand-mark.svg */; };
+		B0000000000000000000001C /* AdvancedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001C /* AdvancedModels.swift */; };
+		B0000000000000000000001D /* AdvancedIntentEntities.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001D /* AdvancedIntentEntities.swift */; };
+		B0000000000000000000001E /* AdvancedVariableIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001E /* AdvancedVariableIntents.swift */; };
+		B00000000000000000000020 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = V00000000000000000000001 /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -61,6 +65,13 @@
 		A00000000000000000000019 /* brand-mark.svg */ = {isa = PBXFileReference; lastKnownFileType = image.svg; path = "brand-mark.svg"; sourceTree = "<group>"; };
 		A0000000000000000000001A /* byway.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = byway.entitlements; sourceTree = "<group>"; };
 		A0000000000000000000001B /* byway.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = byway.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A0000000000000000000001C /* AdvancedModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedModels.swift; sourceTree = "<group>"; };
+		A0000000000000000000001D /* AdvancedIntentEntities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedIntentEntities.swift; sourceTree = "<group>"; };
+		A0000000000000000000001E /* AdvancedVariableIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedVariableIntents.swift; sourceTree = "<group>"; };
+		A0000000000000000000001F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A00000000000000000000020 /* byway.local.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = byway.local.entitlements; sourceTree = "<group>"; };
+		A00000000000000000000021 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		A00000000000000000000022 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,7 +102,9 @@
 				E00000000000000000000006 /* UI */,
 				E00000000000000000000007 /* Intents */,
 				E00000000000000000000008 /* Resources */,
+				A0000000000000000000001F /* Info.plist */,
 				A0000000000000000000001A /* byway.entitlements */,
+				A00000000000000000000020 /* byway.local.entitlements */,
 			);
 			path = byway;
 			sourceTree = "<group>";
@@ -99,6 +112,7 @@
 		E00000000000000000000003 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				A0000000000000000000001C /* AdvancedModels.swift */,
 				A00000000000000000000004 /* GlobalVariable.swift */,
 				A00000000000000000000002 /* VariableKind.swift */,
 				A00000000000000000000003 /* VariableValue.swift */,
@@ -141,6 +155,8 @@
 		E00000000000000000000007 /* Intents */ = {
 			isa = PBXGroup;
 			children = (
+				A0000000000000000000001D /* AdvancedIntentEntities.swift */,
+				A0000000000000000000001E /* AdvancedVariableIntents.swift */,
 				A00000000000000000000016 /* BywayShortcuts.swift */,
 				A00000000000000000000013 /* GetVariableIntents.swift */,
 				A00000000000000000000015 /* ImportExportIntents.swift */,
@@ -158,6 +174,7 @@
 				A00000000000000000000017 /* Assets.xcassets */,
 				A00000000000000000000018 /* PrivacyInfo.xcprivacy */,
 				A00000000000000000000019 /* brand-mark.svg */,
+				V00000000000000000000001 /* Localizable.strings */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -203,7 +220,7 @@
 			compatibilityVersion = "Xcode 15.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
-			knownRegions = (en, Base);
+			knownRegions = (en, es, Base);
 			mainGroup = E00000000000000000000001;
 			productRefGroup = E00000000000000000000009 /* Products */;
 			projectDirPath = "";
@@ -220,10 +237,23 @@
 				B00000000000000000000017 /* Assets.xcassets in Resources */,
 				B00000000000000000000018 /* PrivacyInfo.xcprivacy in Resources */,
 				B00000000000000000000019 /* brand-mark.svg in Resources */,
+				B00000000000000000000020 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		V00000000000000000000001 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A00000000000000000000021 /* en */,
+				A00000000000000000000022 /* es */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin PBXSourcesBuildPhase section */
 		D00000000000000000000002 /* Sources */ = {
@@ -233,6 +263,7 @@
 				B00000000000000000000001 /* BywayApp.swift in Sources */,
 				B00000000000000000000002 /* VariableKind.swift in Sources */,
 				B00000000000000000000003 /* VariableValue.swift in Sources */,
+				B0000000000000000000001C /* AdvancedModels.swift in Sources */,
 				B00000000000000000000004 /* GlobalVariable.swift in Sources */,
 				B00000000000000000000005 /* StorageLocation.swift in Sources */,
 				B00000000000000000000006 /* BywayArchive.swift in Sources */,
@@ -246,6 +277,8 @@
 				B0000000000000000000000E /* HistoryView.swift in Sources */,
 				B0000000000000000000000F /* SettingsView.swift in Sources */,
 				B00000000000000000000010 /* VariableEntity.swift in Sources */,
+				B0000000000000000000001D /* AdvancedIntentEntities.swift in Sources */,
+				B0000000000000000000001E /* AdvancedVariableIntents.swift in Sources */,
 				B00000000000000000000011 /* IntentSupport.swift in Sources */,
 				B00000000000000000000012 /* SetVariableIntents.swift in Sources */,
 				B00000000000000000000013 /* GetVariableIntents.swift in Sources */,
@@ -296,19 +329,24 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = byway/byway.entitlements;
+				CODE_SIGN_ENTITLEMENTS = byway/byway.local.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4;
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = BPBM5SVGCF;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = byway/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = byway;
 				INFOPLIST_KEY_ITSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tiburonns.byway;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -326,17 +364,21 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = byway/byway.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = byway/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = byway;
 				INFOPLIST_KEY_ITSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tiburonns.byway;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;

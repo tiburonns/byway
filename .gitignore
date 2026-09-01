@@ -1,0 +1,8 @@
+.DS_Store
+.byway-device-build/
+.byway-signed-build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+dist/*.ipa
+dist/*.zip

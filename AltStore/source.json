@@ -1,0 +1,48 @@
+{
+  "name": "Byway",
+  "subtitle": "Persistent data for Apple Shortcuts",
+  "description": "Install Byway and its complete bilingual Shortcuts workflow.",
+  "iconURL": "https://raw.githubusercontent.com/tiburonns/byway/main/Xcode/byway/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon-512.png",
+  "website": "https://github.com/tiburonns/byway",
+  "tintColor": "#0A84FF",
+  "featuredApps": [
+    "com.tiburonns.byway"
+  ],
+  "apps": [
+    {
+      "name": "Byway",
+      "bundleIdentifier": "com.tiburonns.byway",
+      "developerName": "tiburonns",
+      "subtitle": "Persistent data for Shortcuts",
+      "localizedDescription": "A private, typed data layer for Apple Shortcuts. Store shared variables, history, navigation, parking, music, Home, and system state on your device.",
+      "iconURL": "https://raw.githubusercontent.com/tiburonns/byway/main/Xcode/byway/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon-512.png",
+      "tintColor": "#0A84FF",
+      "category": "utilities",
+      "versions": [
+        {
+          "version": "0.4.0",
+          "buildVersion": "4",
+          "date": "2026-09-01",
+          "localizedDescription": "Adds English and Spanish app localization, an in-app language selector, the complete bilingual Shortcut collection, Schema 3 import, and automatic timestamps for mode changes.",
+          "downloadURL": "https://github.com/tiburonns/byway/releases/download/v0.4.0/Byway-0.4.0.ipa",
+          "size": 763270,
+          "minOSVersion": "17.0"
+        }
+      ],
+      "appPermissions": {
+        "entitlements": [],
+        "privacy": {}
+      }
+    }
+  ],
+  "news": [
+    {
+      "title": "Byway 0.4.0 is available",
+      "identifier": "byway-0.4.0-en",
+      "caption": "Bilingual app and Shortcuts, language selector, and an easier setup.",
+      "date": "2026-09-01",
+      "tintColor": "#0A84FF",
+      "notify": true
+    }
+  ]
+}

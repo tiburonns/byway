@@ -67,7 +67,7 @@ struct VariableEditorView: View {
                 TextField("Key", text: $key, prompt: Text("example.last-route"))
                 Picker("Type", selection: $kind) {
                     ForEach(VariableKind.allCases) { kind in
-                        Label(kind.title, systemImage: kind.symbol).tag(kind)
+                        Label(LocalizedStringKey(kind.title), systemImage: kind.symbol).tag(kind)
                     }
                 }
             }
@@ -90,14 +90,16 @@ struct VariableEditorView: View {
                 }
             }
         }
-        .navigationTitle(variable == nil ? "New variable" : "Edit variable")
+        .navigationTitle(LocalizedStringKey(variable == nil ? "New variable" : "Edit variable"))
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Cancel") { dismiss() }
             }
             ToolbarItem(placement: .confirmationAction) {
-                Button(isSaving ? "Saving…" : "Save") {
+                Button {
                     Task { await save() }
+                } label: {
+                    Text(LocalizedStringKey(isSaving ? "Saving…" : "Save"))
                 }
                 .disabled(key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSaving)
             }
@@ -161,7 +163,7 @@ struct VariableEditorView: View {
             TextEditor(text: $jsonValue)
                 .font(.system(.body, design: .monospaced))
                 .frame(minHeight: 150)
-            Text(kind == .array ? "Enter a JSON array." : "Enter a JSON object.")
+            Text(LocalizedStringKey(kind == .array ? "Enter a JSON array." : "Enter a JSON object."))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         case .date:
@@ -183,7 +185,11 @@ struct VariableEditorView: View {
             Button {
                 isImportingFile = true
             } label: {
-                Label(pendingFile?.filename ?? variable?.value.fileValue?.filename ?? "Choose file", systemImage: "doc.badge.plus")
+                if let filename = pendingFile?.filename ?? variable?.value.fileValue?.filename {
+                    Label(filename, systemImage: "doc.badge.plus")
+                } else {
+                    Label("Choose file", systemImage: "doc.badge.plus")
+                }
             }
         case .null:
             Label("Null has no value", systemImage: "nosign")
