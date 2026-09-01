@@ -91,7 +91,14 @@ func ask(_ prompt: String, actionUUID: String) -> Action {
 }
 
 func currentDate(_ actionUUID: String) -> Action {
-    systemAction("is.workflow.actions.date", actionUUID: actionUUID)
+    // Shortcuts does not reliably materialize the action's visual default when
+    // a generated workflow omits it. An omitted mode can therefore become an
+    // unresolved Date parameter and ask the user at runtime.
+    systemAction(
+        "is.workflow.actions.date",
+        ["WFDateActionMode": "Current Date"],
+        actionUUID: actionUUID
+    )
 }
 
 func chooseMenu(prompt: String, items: [(String, [Action])]) -> [Action] {

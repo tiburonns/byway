@@ -37,6 +37,7 @@ La compilación para AltStore utiliza almacenamiento en el dispositivo para que 
 ```sh
 ./Tests/run-core-tests.sh
 ./Tests/run-intent-tests.sh
+./Tests/run-shortcut-audit.sh
 xcodebuild -project Xcode/byway.xcodeproj -scheme byway -sdk iphonesimulator \
   -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
 ```
