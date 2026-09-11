@@ -12,9 +12,12 @@ struct GetDictionaryEntryIntent: AppIntent {
     func perform() async throws -> some IntentResult & ReturnsValue<DictionaryEntryEntity> & ProvidesDialog {
         let value = try await VariableRepository.shared.dictionaryEntry(key: key, path: path)
         let result = DictionaryEntryEntity(variableKey: key, path: path, value: value)
+        let dialog: IntentDialog = value == nil
+            ? "No entry exists at \(path)."
+            : "Retrieved \(path) from \(key)."
         return .result(
             value: result,
-            dialog: value == nil ? "No entry exists at \(path)." : "Retrieved \(path) from \(key)."
+            dialog: dialog
         )
     }
 }
@@ -396,9 +399,12 @@ struct EnsureVariableIntent: AppIntent {
     func perform() async throws -> some IntentResult & ReturnsValue<VariableMetadataEntity> & ProvidesDialog {
         let value = try IntentSupport.jsonValue(from: json)
         let result = try await VariableRepository.shared.ensure(key: key, value: value, expiresAt: expiresAt)
+        let dialog: IntentDialog = result.created
+            ? "Created \(key)."
+            : "\(key) already exists; its value was preserved."
         return .result(
             value: VariableMetadataEntity(key: key, variable: result.variable),
-            dialog: result.created ? "Created \(key)." : "\(key) already exists; its value was preserved."
+            dialog: dialog
         )
     }
 }
