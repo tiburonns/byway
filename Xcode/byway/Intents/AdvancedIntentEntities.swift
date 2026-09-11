@@ -1,26 +1,122 @@
 import AppIntents
 import Foundation
 
+private enum EntityIdentifier {
+    static func encode(_ components: [String]) -> String {
+        guard let data = try? JSONEncoder().encode(components) else { return "invalid" }
+        return data.base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
+    }
+
+    static func decode(_ identifier: String) -> [String]? {
+        var base64 = identifier.replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        base64 += String(repeating: "=", count: (4 - base64.count % 4) % 4)
+        guard let data = Data(base64Encoded: base64) else { return nil }
+        return try? JSONDecoder().decode([String].self, from: data)
+    }
+}
+
 struct DictionaryEntryQuery: EntityQuery {
-    func entities(for identifiers: [String]) async throws -> [DictionaryEntryEntity] { [] }
+    func entities(for identifiers: [String]) async throws -> [DictionaryEntryEntity] {
+        var entities: [DictionaryEntryEntity] = []
+        for identifier in identifiers {
+            guard let components = EntityIdentifier.decode(identifier),
+                  components.count == 3, components[0] == "dictionary",
+                  let variable = try? await VariableRepository.shared.variable(forKey: components[1]),
+                  case .dictionary = variable.value else { continue }
+            let value = try variable.value.value(atPath: components[2])
+            entities.append(.init(variableKey: components[1], path: components[2], value: value))
+        }
+        return entities
+    }
 }
 struct LocationDetailsQuery: EntityQuery {
-    func entities(for identifiers: [String]) async throws -> [LocationDetailsEntity] { [] }
+    func entities(for identifiers: [String]) async throws -> [LocationDetailsEntity] {
+        var entities: [LocationDetailsEntity] = []
+        for identifier in identifiers {
+            guard let components = EntityIdentifier.decode(identifier),
+                  components.count == 2, components[0] == "location",
+                  let variable = try? await VariableRepository.shared.variable(forKey: components[1]),
+                  case .location(let location) = variable.value else { continue }
+            entities.append(try .init(variableKey: variable.key, location: location))
+        }
+        return entities
+    }
 }
 struct MeasurementDetailsQuery: EntityQuery {
-    func entities(for identifiers: [String]) async throws -> [MeasurementDetailsEntity] { [] }
+    func entities(for identifiers: [String]) async throws -> [MeasurementDetailsEntity] {
+        var entities: [MeasurementDetailsEntity] = []
+        for identifier in identifiers {
+            guard let components = EntityIdentifier.decode(identifier),
+                  components.count == 2, components[0] == "measurement",
+                  let variable = try? await VariableRepository.shared.variable(forKey: components[1]),
+                  case .measurement(let measurement) = variable.value else { continue }
+            entities.append(.init(variableKey: variable.key, measurement: measurement))
+        }
+        return entities
+    }
 }
 struct VariableMetadataQuery: EntityQuery {
-    func entities(for identifiers: [String]) async throws -> [VariableMetadataEntity] { [] }
+    func entities(for identifiers: [String]) async throws -> [VariableMetadataEntity] {
+        var entities: [VariableMetadataEntity] = []
+        for identifier in identifiers {
+            guard let components = EntityIdentifier.decode(identifier),
+                  components.count == 2, components[0] == "metadata" else { continue }
+            let variable = try? await VariableRepository.shared.variable(forKey: components[1], includeExpired: true)
+            entities.append(.init(key: components[1], variable: variable))
+        }
+        return entities
+    }
 }
 struct BywayEventQuery: EntityQuery {
-    func entities(for identifiers: [String]) async throws -> [BywayEventEntity] { [] }
+    func entities(for identifiers: [String]) async throws -> [BywayEventEntity] {
+        var entities: [BywayEventEntity] = []
+        for identifier in identifiers {
+            guard let components = EntityIdentifier.decode(identifier),
+                  components.count == 3, components[0] == "event",
+                  let eventID = UUID(uuidString: components[2]) else { continue }
+            let events = try await VariableRepository.shared.queryEvents(key: components[1], limit: 1_000)
+            if let event = events.first(where: { $0.id == eventID }) {
+                entities.append(.init(event, key: components[1]))
+            }
+        }
+        return entities
+    }
 }
 struct ListItemQuery: EntityQuery {
-    func entities(for identifiers: [String]) async throws -> [ListItemEntity] { [] }
+    func entities(for identifiers: [String]) async throws -> [ListItemEntity] {
+        var entities: [ListItemEntity] = []
+        for identifier in identifiers {
+            guard let components = EntityIdentifier.decode(identifier),
+                  components.count == 3, components[0] == "list",
+                  let index = Int(components[2]), index >= 0,
+                  let variable = try? await VariableRepository.shared.variable(forKey: components[1]),
+                  case .array(let values) = variable.value,
+                  values.indices.contains(index) else { continue }
+            entities.append(.init(listKey: variable.key, index: index, value: values[index]))
+        }
+        return entities
+    }
 }
 struct TransactionResultQuery: EntityQuery {
-    func entities(for identifiers: [String]) async throws -> [TransactionResultEntity] { [] }
+    func entities(for identifiers: [String]) async throws -> [TransactionResultEntity] {
+        identifiers.compactMap { identifier in
+            guard let components = EntityIdentifier.decode(identifier),
+                  components.count >= 6, components[0] == "transaction",
+                  let created = Int(components[1]), let updated = Int(components[2]),
+                  let deleted = Int(components[3]), let skipped = Int(components[4]) else { return nil }
+            return TransactionResultEntity(.init(
+                affectedKeys: Array(components.dropFirst(5)),
+                createdCount: created,
+                updatedCount: updated,
+                deletedCount: deleted,
+                skippedCount: skipped
+            ))
+        }
+    }
 }
 
 struct DictionaryEntryEntity: AppEntity, Sendable {
@@ -45,7 +141,7 @@ struct DictionaryEntryEntity: AppEntity, Sendable {
     }
 
     init(variableKey: String, path: String, value: VariableValue?) {
-        id = UUID().uuidString
+        id = EntityIdentifier.encode(["dictionary", variableKey, path])
         self.variableKey = variableKey
         self.path = path
         exists = value != nil
@@ -78,7 +174,7 @@ struct LocationDetailsEntity: AppEntity, Sendable {
     }
 
     init(variableKey: String, location: BywayLocation) throws {
-        id = UUID().uuidString
+        id = EntityIdentifier.encode(["location", variableKey])
         self.variableKey = variableKey
         latitude = location.latitude
         longitude = location.longitude
@@ -108,7 +204,7 @@ struct MeasurementDetailsEntity: AppEntity, Sendable {
     }
 
     init(variableKey: String, measurement: BywayMeasurement) {
-        id = UUID().uuidString
+        id = EntityIdentifier.encode(["measurement", variableKey])
         self.variableKey = variableKey
         value = measurement.value
         unit = measurement.unitSymbol
@@ -141,7 +237,7 @@ struct VariableMetadataEntity: AppEntity, Sendable {
     }
 
     init(key: String, variable: GlobalVariable?) {
-        id = variable?.id.uuidString ?? UUID().uuidString
+        id = EntityIdentifier.encode(["metadata", variable?.key ?? key])
         self.key = variable?.key ?? key
         exists = variable != nil
         isNull = variable?.value.kind == .null
@@ -175,8 +271,8 @@ struct BywayEventEntity: AppEntity, Sendable {
         )
     }
 
-    init(_ event: BywayEvent) {
-        id = event.id.uuidString
+    init(_ event: BywayEvent, key: String = "HISTORY.Events") {
+        id = EntityIdentifier.encode(["event", key, event.id.uuidString])
         uuid = event.id.uuidString
         category = event.category
         action = event.action
@@ -207,7 +303,7 @@ struct ListItemEntity: AppEntity, Sendable {
     }
 
     init(listKey: String, index: Int, value: VariableValue) {
-        id = "\(listKey):\(index):\(UUID().uuidString)"
+        id = EntityIdentifier.encode(["list", listKey, String(index)])
         self.listKey = listKey
         self.index = index
         type = value.kind.title
@@ -237,7 +333,13 @@ struct TransactionResultEntity: AppEntity, Sendable {
     }
 
     init(_ summary: TransactionSummary) {
-        id = UUID().uuidString
+        id = EntityIdentifier.encode([
+            "transaction",
+            String(summary.createdCount),
+            String(summary.updatedCount),
+            String(summary.deletedCount),
+            String(summary.skippedCount)
+        ] + summary.affectedKeys)
         affectedKeys = summary.affectedKeys
         created = summary.createdCount
         updated = summary.updatedCount

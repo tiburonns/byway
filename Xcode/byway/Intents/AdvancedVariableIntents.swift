@@ -89,7 +89,7 @@ struct AppendEventIntent: AppIntent {
             details: details
         )
         _ = try await VariableRepository.shared.appendEvent(key: key, event: event)
-        return .result(value: BywayEventEntity(event), dialog: "Added \(trimmedCategory) event \(eventID.uuidString).")
+        return .result(value: BywayEventEntity(event, key: key), dialog: "Added \(trimmedCategory) event \(eventID.uuidString).")
     }
 }
 
@@ -168,7 +168,7 @@ struct QueryEventsIntent: AppIntent {
             limit: limit,
             newestFirst: order == .newestFirst
         )
-        return .result(value: events.map(BywayEventEntity.init), dialog: "Found \(events.count) events.")
+        return .result(value: events.map { BywayEventEntity($0, key: key) }, dialog: "Found \(events.count) events.")
     }
 }
 
@@ -183,7 +183,7 @@ struct GetLastEventIntent: AppIntent {
 
     func perform() async throws -> some IntentResult & ReturnsValue<BywayEventEntity> & ProvidesDialog {
         let event = try await VariableRepository.shared.lastEvent(key: key, category: category, action: action)
-        return .result(value: BywayEventEntity(event), dialog: "Retrieved the latest \(event.category) event.")
+        return .result(value: BywayEventEntity(event, key: key), dialog: "Retrieved the latest \(event.category) event.")
     }
 }
 

@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Core integration tests
+        run: ./Tests/run-core-tests.sh
+      - name: App Intent integration tests
+        run: ./Tests/run-intent-tests.sh
+      - name: Shortcut localization audit
+        run: ./Tests/run-shortcut-audit.sh
+      - name: Build iOS app
+        run: >-
+          xcodebuild build
+          -project Xcode/byway.xcodeproj
+          -scheme byway
+          -destination 'generic/platform=iOS Simulator'
+          CODE_SIGNING_ALLOWED=NO

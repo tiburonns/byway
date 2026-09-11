@@ -21,14 +21,11 @@ final class VariableStore {
         isLoading = true
         defer { isLoading = false }
         do {
-            async let variables = repository.list(matching: query)
-            async let folders = repository.listFolders()
-            async let changes = repository.history()
-            async let status = repository.storageStatus()
-            self.variables = try await variables
-            self.folders = try await folders
-            self.changes = try await changes
-            self.storageStatus = try await status
+            let snapshot = try await repository.snapshot(matching: query)
+            variables = snapshot.variables
+            folders = snapshot.folders
+            changes = snapshot.changes
+            storageStatus = snapshot.storageStatus
             errorMessage = nil
         } catch {
             errorMessage = error.localizedDescription
