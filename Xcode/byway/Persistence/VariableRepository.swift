@@ -3,6 +3,10 @@ import Foundation
 
 actor VariableRepository {
     static let shared = VariableRepository()
+    static let maximumArchiveBytes = 64 * 1_024 * 1_024
+    static let maximumAttachmentBytes = 25 * 1_024 * 1_024
+    static let maximumArchiveVariables = 2_000
+    static let maximumArchiveAttachments = 1_000
 
     private let fileManager = FileManager.default
     private let encoder: JSONEncoder
@@ -24,12 +28,36 @@ actor VariableRepository {
         try prepareStorage().status
     }
 
+    func snapshot(matching query: String = "", historyLimit: Int = 200) throws -> VariableRepositorySnapshot {
+        let storage = try prepareStorage()
+        return VariableRepositorySnapshot(
+            variables: try readVariables(storage: storage, matching: query),
+            folders: try readFolders(storage: storage),
+            changes: try readHistory(storage: storage, limit: historyLimit),
+            storageStatus: storage.status
+        )
+    }
+
     func list(
         matching query: String = "",
         includeExpired: Bool = false,
         tag: String? = nil
     ) throws -> [GlobalVariable] {
         let storage = try prepareStorage()
+        return try readVariables(
+            storage: storage,
+            matching: query,
+            includeExpired: includeExpired,
+            tag: tag
+        )
+    }
+
+    private func readVariables(
+        storage: PreparedStorage,
+        matching query: String = "",
+        includeExpired: Bool = false,
+        tag: String? = nil
+    ) throws -> [GlobalVariable] {
         let urls = try fileManager.contentsOfDirectory(
             at: storage.variables,
             includingPropertiesForKeys: nil,
@@ -93,6 +121,10 @@ actor VariableRepository {
 
     func listFolders() throws -> [VariableFolder] {
         let storage = try prepareStorage()
+        return try readFolders(storage: storage)
+    }
+
+    private func readFolders(storage: PreparedStorage) throws -> [VariableFolder] {
         return try fileManager.contentsOfDirectory(
             at: storage.folders,
             includingPropertiesForKeys: nil,
@@ -204,6 +236,9 @@ actor VariableRepository {
                 previous: existing,
                 current: variable
             ), storage: storage)
+            if fileReferenceIDs(in: existing?.value) != fileReferenceIDs(in: variable.value) {
+                _ = try? removeOrphanedAttachments(storage: storage)
+            }
         } catch {
             if let previousData {
                 try? previousData.write(to: url, options: [.atomic])
@@ -263,6 +298,9 @@ actor VariableRepository {
                 previous: variable,
                 current: nil
             ), storage: storage)
+            if !fileReferences(in: variable.value).isEmpty {
+                _ = try? removeOrphanedAttachments(storage: storage)
+            }
         } catch {
             try? originalData.write(to: url, options: [.atomic])
             throw error
@@ -600,6 +638,11 @@ actor VariableRepository {
             }
             try pruneHistory(storage: storage)
             try fileManager.removeItem(at: transactionURL)
+            if changed.contains(where: {
+                fileReferenceIDs(in: $0.original?.value) != fileReferenceIDs(in: $0.current?.value)
+            }) {
+                _ = try? removeOrphanedAttachments(storage: storage)
+            }
         } catch {
             try? rollbackTransaction(at: transactionURL, storage: storage)
             throw error
@@ -616,11 +659,37 @@ actor VariableRepository {
     }
 
     func saveFile(data: Data, filename: String, contentType: String) throws -> StoredFile {
+        guard data.count <= Self.maximumAttachmentBytes else {
+            throw BywayError.invalidValue("A stored file cannot exceed 25 MB.")
+        }
+        guard !filename.isEmpty, filename.count <= 255, contentType.count <= 255 else {
+            throw BywayError.invalidValue("The file name or content type is invalid.")
+        }
         let storage = try prepareStorage()
         let file = StoredFile(filename: filename, contentType: contentType, byteCount: data.count)
         let url = attachmentURL(for: file, storage: storage)
         try data.write(to: url, options: [.atomic])
         return file
+    }
+
+    @discardableResult
+    func setFile(
+        key: String,
+        data: Data,
+        filename: String,
+        contentType: String,
+        expiresAt: Date? = nil
+    ) throws -> GlobalVariable {
+        let file = try saveFile(data: data, filename: filename, contentType: contentType)
+        do {
+            return try set(key: key, value: .file(file), expiresAt: expiresAt)
+        } catch {
+            let storage = try? prepareStorage()
+            if let storage {
+                try? fileManager.removeItem(at: attachmentURL(for: file, storage: storage))
+            }
+            throw error
+        }
     }
 
     func fileData(for file: StoredFile) throws -> Data {
@@ -634,6 +703,10 @@ actor VariableRepository {
 
     func history(limit: Int = 200) throws -> [VariableChange] {
         let storage = try prepareStorage()
+        return try readHistory(storage: storage, limit: limit)
+    }
+
+    private func readHistory(storage: PreparedStorage, limit: Int = 200) throws -> [VariableChange] {
         let urls = try fileManager.contentsOfDirectory(
             at: storage.history,
             includingPropertiesForKeys: nil,
@@ -714,9 +787,17 @@ actor VariableRepository {
 
     @discardableResult
     func importArchive(data: Data, strategy: ImportStrategy) throws -> Int {
+        guard data.count <= Self.maximumArchiveBytes else {
+            throw BywayError.invalidValue("A byway archive cannot exceed 64 MB.")
+        }
         let archive = try decoder.decode(BywayArchive.self, from: data)
         guard archive.version <= BywayArchive.currentVersion else {
             throw BywayError.invalidValue("This archive was created by a newer version of byway.")
+        }
+        guard archive.variables.count <= Self.maximumArchiveVariables,
+              archive.attachments.count <= Self.maximumArchiveAttachments,
+              archive.attachments.values.allSatisfy({ $0.count <= Self.maximumAttachmentBytes }) else {
+            throw BywayError.invalidValue("The archive exceeds the supported variable, attachment, or file-size limits.")
         }
 
         let storage = try prepareStorage()
@@ -755,23 +836,22 @@ actor VariableRepository {
             mutations.append(.replace(variable))
         }
 
-        let attachmentBackup = fileManager.temporaryDirectory
+        let importBackup = fileManager.temporaryDirectory
             .appendingPathComponent("byway-import-\(UUID().uuidString)", isDirectory: true)
-        try fileManager.createDirectory(at: attachmentBackup, withIntermediateDirectories: true)
-        var writtenAttachments: [(target: URL, backup: URL?)] = []
+        try fileManager.createDirectory(at: importBackup, withIntermediateDirectories: true)
+        let protectedDirectories = [storage.variables, storage.attachments, storage.folders, storage.history]
+        for directory in protectedDirectories {
+            try fileManager.copyItem(
+                at: directory,
+                to: importBackup.appendingPathComponent(directory.lastPathComponent, isDirectory: true)
+            )
+        }
         do {
             for variable in variablesToImport {
                 for file in fileReferences(in: variable.value) {
                     guard let attachment = archive.attachments[file.id.uuidString] else { continue }
                     let target = attachmentURL(for: file, storage: storage)
-                    var backup: URL?
-                    if fileManager.fileExists(atPath: target.path) {
-                        let backupURL = attachmentBackup.appendingPathComponent(target.lastPathComponent)
-                        try fileManager.copyItem(at: target, to: backupURL)
-                        backup = backupURL
-                    }
                     try attachment.write(to: target, options: [.atomic])
-                    writtenAttachments.append((target, backup))
                 }
             }
             _ = try applyTransaction(mutations)
@@ -785,19 +865,57 @@ actor VariableRepository {
                     try? fileManager.removeItem(at: url)
                 }
             }
-            try fileManager.removeItem(at: attachmentBackup)
+            _ = try? removeOrphanedAttachments(storage: storage)
+            try fileManager.removeItem(at: importBackup)
         } catch {
-            for item in writtenAttachments.reversed() {
-                if let backup = item.backup {
-                    try? Data(contentsOf: backup).write(to: item.target, options: [.atomic])
-                } else {
-                    try? fileManager.removeItem(at: item.target)
-                }
+            for directory in protectedDirectories {
+                try? fileManager.removeItem(at: directory)
+                let backup = importBackup.appendingPathComponent(directory.lastPathComponent, isDirectory: true)
+                try? fileManager.copyItem(at: backup, to: directory)
             }
-            try? fileManager.removeItem(at: attachmentBackup)
+            try? fileManager.removeItem(at: importBackup)
             throw error
         }
         return variablesToImport.count
+    }
+
+    @discardableResult
+    func removeOrphanedAttachments() throws -> Int {
+        try removeOrphanedAttachments(storage: prepareStorage())
+    }
+
+    private func removeOrphanedAttachments(storage: PreparedStorage) throws -> Int {
+        let variables = try readVariables(storage: storage, includeExpired: true)
+        let liveIDs = Set(variables.flatMap { fileReferences(in: $0.value).map(\.id) })
+
+        let historyURLs = try fileManager.contentsOfDirectory(
+            at: storage.history,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        ).filter { $0.pathExtension == "json" }
+        for url in historyURLs {
+            guard let data = try? Data(contentsOf: url),
+                  let change = try? decoder.decode(VariableChange.self, from: data) else { continue }
+            let historicalIDs = fileReferenceIDs(in: change.previous?.value)
+                .union(fileReferenceIDs(in: change.current?.value))
+            if !historicalIDs.isSubset(of: liveIDs) {
+                try? fileManager.removeItem(at: url)
+            }
+        }
+
+        var removed = 0
+        let attachmentURLs = try fileManager.contentsOfDirectory(
+            at: storage.attachments,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        )
+        for url in attachmentURLs {
+            let identifier = url.deletingPathExtension().lastPathComponent
+            guard let id = UUID(uuidString: identifier), !liveIDs.contains(id) else { continue }
+            try fileManager.removeItem(at: url)
+            removed += 1
+        }
+        return removed
     }
 
     private struct PreparedStorage {
@@ -1053,4 +1171,16 @@ actor VariableRepository {
         default: []
         }
     }
+
+    private func fileReferenceIDs(in value: VariableValue?) -> Set<UUID> {
+        guard let value else { return [] }
+        return Set(fileReferences(in: value).map(\.id))
+    }
+}
+
+struct VariableRepositorySnapshot: Sendable {
+    var variables: [GlobalVariable]
+    var folders: [VariableFolder]
+    var changes: [VariableChange]
+    var storageStatus: StorageStatus
 }

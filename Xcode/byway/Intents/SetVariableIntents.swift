@@ -235,13 +235,17 @@ struct SetFileVariableIntent: AppIntent {
     @Parameter(title: "Expiration Date") var expiresAt: Date?
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        let stored = try await VariableRepository.shared.saveFile(
+        let stored = try await VariableRepository.shared.setFile(
+            key: key,
             data: IntentSupport.data(for: file),
             filename: file.filename,
-            contentType: file.type?.identifier ?? UTType.data.identifier
+            contentType: file.type?.identifier ?? UTType.data.identifier,
+            expiresAt: expiresAt
         )
-        _ = try await VariableRepository.shared.set(key: key, value: .file(stored), expiresAt: expiresAt)
-        return .result(dialog: "Stored \(stored.filename) in \(key).")
+        guard case .file(let fileReference) = stored.value else {
+            throw BywayError.invalidValue("The stored file reference is unavailable.")
+        }
+        return .result(dialog: "Stored \(fileReference.filename) in \(key).")
     }
 }
 

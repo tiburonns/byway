@@ -84,6 +84,30 @@ struct AdvancedCoreIntegration {
         let missingExists = try await repository.exists(key: "TEST.Missing")
         guard !missingExists else { throw TestFailure("Missing variable counted as existing") }
 
+        let fileVariable = try await repository.setFile(
+            key: "TEST.File",
+            data: Data("temporary attachment".utf8),
+            filename: "test.txt",
+            contentType: "text/plain"
+        )
+        guard case .file(let storedFile) = fileVariable.value,
+              try await repository.fileData(for: storedFile) == Data("temporary attachment".utf8) else {
+            throw TestFailure("Atomic file storage failed")
+        }
+        _ = try await repository.set(key: "TEST.File", value: .text("replaced"))
+        do {
+            _ = try await repository.fileData(for: storedFile)
+            throw TestFailure("Replacing a file variable left an orphaned attachment")
+        } catch BywayError.missingFile {
+            // Expected: cleanup removes the attachment and its unrestorable history entry.
+        }
+
+        let snapshot = try await repository.snapshot(matching: "TEST.")
+        guard snapshot.variables.contains(where: { $0.key == "TEST.File" }),
+              !snapshot.changes.isEmpty else {
+            throw TestFailure("Repository snapshot did not return a consistent state")
+        }
+
         let folder = try await repository.createFolder(name: "Shared Tests")
         guard try await repository.listFolders().contains(where: { $0.id == folder.id }) else {
             throw TestFailure("An empty folder was not persisted")

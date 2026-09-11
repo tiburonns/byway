@@ -17,9 +17,12 @@ struct ExportVariablesIntent: AppIntent {
             filename: "byway-backup.byway",
             type: .bywayArchive
         )
+        let dialog: IntentDialog = requestedKeys == nil
+            ? "Exported all byway variables."
+            : "Exported \(requestedKeys!.count) requested variables."
         return .result(
             value: file,
-            dialog: requestedKeys == nil ? "Exported all byway variables." : "Exported \(requestedKeys!.count) requested variables."
+            dialog: dialog
         )
     }
 }

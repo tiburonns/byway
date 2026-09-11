@@ -12,9 +12,12 @@ struct GetDictionaryEntryIntent: AppIntent {
     func perform() async throws -> some IntentResult & ReturnsValue<DictionaryEntryEntity> & ProvidesDialog {
         let value = try await VariableRepository.shared.dictionaryEntry(key: key, path: path)
         let result = DictionaryEntryEntity(variableKey: key, path: path, value: value)
+        let dialog: IntentDialog = value == nil
+            ? "No entry exists at \(path)."
+            : "Retrieved \(path) from \(key)."
         return .result(
             value: result,
-            dialog: value == nil ? "No entry exists at \(path)." : "Retrieved \(path) from \(key)."
+            dialog: dialog
         )
     }
 }
@@ -89,7 +92,7 @@ struct AppendEventIntent: AppIntent {
             details: details
         )
         _ = try await VariableRepository.shared.appendEvent(key: key, event: event)
-        return .result(value: BywayEventEntity(event), dialog: "Added \(trimmedCategory) event \(eventID.uuidString).")
+        return .result(value: BywayEventEntity(event, key: key), dialog: "Added \(trimmedCategory) event \(eventID.uuidString).")
     }
 }
 
@@ -168,7 +171,7 @@ struct QueryEventsIntent: AppIntent {
             limit: limit,
             newestFirst: order == .newestFirst
         )
-        return .result(value: events.map(BywayEventEntity.init), dialog: "Found \(events.count) events.")
+        return .result(value: events.map { BywayEventEntity($0, key: key) }, dialog: "Found \(events.count) events.")
     }
 }
 
@@ -183,7 +186,7 @@ struct GetLastEventIntent: AppIntent {
 
     func perform() async throws -> some IntentResult & ReturnsValue<BywayEventEntity> & ProvidesDialog {
         let event = try await VariableRepository.shared.lastEvent(key: key, category: category, action: action)
-        return .result(value: BywayEventEntity(event), dialog: "Retrieved the latest \(event.category) event.")
+        return .result(value: BywayEventEntity(event, key: key), dialog: "Retrieved the latest \(event.category) event.")
     }
 }
 
@@ -396,9 +399,12 @@ struct EnsureVariableIntent: AppIntent {
     func perform() async throws -> some IntentResult & ReturnsValue<VariableMetadataEntity> & ProvidesDialog {
         let value = try IntentSupport.jsonValue(from: json)
         let result = try await VariableRepository.shared.ensure(key: key, value: value, expiresAt: expiresAt)
+        let dialog: IntentDialog = result.created
+            ? "Created \(key)."
+            : "\(key) already exists; its value was preserved."
         return .result(
             value: VariableMetadataEntity(key: key, variable: result.variable),
-            dialog: result.created ? "Created \(key)." : "\(key) already exists; its value was preserved."
+            dialog: dialog
         )
     }
 }
