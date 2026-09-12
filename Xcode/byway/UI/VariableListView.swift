@@ -91,53 +91,61 @@ struct VariableListView: View {
                     EditButton()
                 }
             }
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Menu {
-                    Button {
-                        folderFilter = .all
-                    } label: {
-                        Label("All variables", systemImage: folderFilter == .all ? "checkmark" : "tray.full")
-                    }
-                    Button {
-                        folderFilter = .unfiled
-                    } label: {
-                        Label("No folder", systemImage: folderFilter == .unfiled ? "checkmark" : "tray")
-                    }
-                    if !store.folders.isEmpty { Divider() }
-                    ForEach(store.folders) { folder in
-                        Button {
-                            folderFilter = .folder(folder.id)
-                        } label: {
-                            Label(folder.name, systemImage: folderFilter == .folder(folder.id) ? "checkmark" : "folder")
-                        }
-                    }
-                } label: {
-                    Label(LocalizedStringKey(filterTitle), systemImage: "folder")
-                }
 
-                Menu {
-                    Button { editor = EditorDestination() } label: {
-                        Label("New variable", systemImage: "plus")
-                    }
-                    Button { showsFolderManager = true } label: {
-                        Label("Manage folders", systemImage: "folder.badge.plus")
-                    }
-                } label: {
-                    Label("Add", systemImage: "plus")
-                }
-            }
-            if isEditing && !selection.isEmpty {
-                ToolbarItemGroup(placement: .bottomBar) {
+            if isEditing {
+                ToolbarItemGroup(placement: .topBarTrailing) {
                     Button { showsMoveDialog = true } label: {
                         Label("Move", systemImage: "folder")
                     }
-                    Spacer()
+                    .disabled(selection.isEmpty)
+
+                    Button(role: .destructive) { showsDeleteConfirmation = true } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                    .disabled(selection.isEmpty)
+                }
+
+                #if os(iOS)
+                ToolbarItem(placement: .bottomBar) {
                     Text("\(selection.count) selected")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
-                    Spacer()
-                    Button(role: .destructive) { showsDeleteConfirmation = true } label: {
-                        Label("Delete", systemImage: "trash")
+                }
+                #endif
+            } else {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Menu {
+                        Button {
+                            folderFilter = .all
+                        } label: {
+                            Label("All variables", systemImage: folderFilter == .all ? "checkmark" : "tray.full")
+                        }
+                        Button {
+                            folderFilter = .unfiled
+                        } label: {
+                            Label("No folder", systemImage: folderFilter == .unfiled ? "checkmark" : "tray")
+                        }
+                        if !store.folders.isEmpty { Divider() }
+                        ForEach(store.folders) { folder in
+                            Button {
+                                folderFilter = .folder(folder.id)
+                            } label: {
+                                Label(folder.name, systemImage: folderFilter == .folder(folder.id) ? "checkmark" : "folder")
+                            }
+                        }
+                    } label: {
+                        Label(LocalizedStringKey(filterTitle), systemImage: "folder")
+                    }
+
+                    Menu {
+                        Button { editor = EditorDestination() } label: {
+                            Label("New variable", systemImage: "plus")
+                        }
+                        Button { showsFolderManager = true } label: {
+                            Label("Manage folders", systemImage: "folder.badge.plus")
+                        }
+                    } label: {
+                        Label("Add", systemImage: "plus")
                     }
                 }
             }
