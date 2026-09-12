@@ -142,7 +142,40 @@ struct AdvancedCoreIntegration {
             throw TestFailure("Deleting a folder did not retain its variables outside a folder")
         }
 
-        print("PASS: transactions, rollback, nested dictionaries, null, lists, events, folders, batch operations, and archives")
+        let encrypted = try await repository.exportEncryptedArchive(
+            variableKeys: ["TEST.Mode"],
+            passphrase: "correct horse battery staple"
+        )
+        _ = try await repository.set(key: "TEST.Mode", value: .text("Changed after backup"))
+        let preview = try await repository.previewArchive(
+            data: encrypted,
+            strategy: .overwrite,
+            passphrase: "correct horse battery staple"
+        )
+        guard preview.isEncrypted, preview.variablesToImport == 1, preview.overwrittenExisting == 1 else {
+            throw TestFailure("Encrypted archive preview was inaccurate")
+        }
+        do {
+            _ = try await repository.previewArchive(data: encrypted, strategy: .overwrite, passphrase: "wrong password")
+            throw TestFailure("Encrypted archive accepted an incorrect passphrase")
+        } catch BywayError.invalidValue {
+            // Expected.
+        }
+        _ = try await repository.importArchive(
+            data: encrypted,
+            strategy: .overwrite,
+            passphrase: "correct horse battery staple"
+        )
+        guard try await repository.variable(forKey: "TEST.Mode").value == .text("Auto"),
+              try await repository.canUndoLastImport() else {
+            throw TestFailure("Encrypted import or recovery point creation failed")
+        }
+        try await repository.undoLastImport()
+        guard try await repository.variable(forKey: "TEST.Mode").value == .text("Changed after backup") else {
+            throw TestFailure("Undo import did not restore the prior state")
+        }
+
+        print("PASS: transactions, rollback, nested dictionaries, null, lists, events, folders, encrypted archives, previews, and import undo")
     }
 }
 

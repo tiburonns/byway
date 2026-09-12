@@ -6,7 +6,7 @@ Byway is a private data layer for Apple Shortcuts. It stores typed global variab
 
 ## Almost plug-and-play setup
 
-1. Install Byway 0.4.0 from the [Byway AltStore source](https://raw.githubusercontent.com/tiburonns/byway/main/AltStore/source.json).
+1. Install Byway 0.5.0 from the [Byway AltStore source](https://raw.githubusercontent.com/tiburonns/byway/main/AltStore/source.json).
 2. Open Byway once.
 3. Download and open [Byway-Schema-3.byway](Distribution/Variables/Byway-Schema-3.byway), then choose **Overwrite matching keys**.
 4. Import the 30 signed shortcuts from [Distribution/Shortcuts/en](Distribution/Shortcuts/en).

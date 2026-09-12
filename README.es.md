@@ -6,7 +6,7 @@ Byway es una capa de datos privada para Atajos de Apple. Guarda variables global
 
 ## Instalación casi plug and play
 
-1. Instala Byway 0.4.0 desde la [fuente de Byway para AltStore](https://raw.githubusercontent.com/tiburonns/byway/main/AltStore/source-es.json).
+1. Instala Byway 0.5.0 desde la [fuente de Byway para AltStore](https://raw.githubusercontent.com/tiburonns/byway/main/AltStore/source-es.json).
 2. Abre Byway una vez.
 3. Descarga y abre [Byway-Schema-3.byway](Distribution/Variables/Byway-Schema-3.byway), y selecciona **Sobrescribir claves coincidentes**.
 4. Importa los 30 atajos firmados de [Distribution/Shortcuts/es](Distribution/Shortcuts/es).

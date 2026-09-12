@@ -7,6 +7,7 @@ actor VariableRepository {
     static let maximumAttachmentBytes = 25 * 1_024 * 1_024
     static let maximumArchiveVariables = 2_000
     static let maximumArchiveAttachments = 1_000
+    static let archiveEncryptionIterations = 100_000
 
     private let fileManager = FileManager.default
     private let encoder: JSONEncoder
@@ -785,8 +786,148 @@ actor VariableRepository {
         return try encoder.encode(archive)
     }
 
+    func exportEncryptedArchive(
+        variableIDs: Set<UUID>? = nil,
+        variableKeys: Set<String>? = nil,
+        passphrase: String
+    ) throws -> Data {
+        let cleanPassphrase = passphrase.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard cleanPassphrase.count >= 8 else {
+            throw BywayError.invalidValue("Use a passphrase with at least 8 characters.")
+        }
+        let archiveData = try exportArchive(variableIDs: variableIDs, variableKeys: variableKeys)
+        let salt = Data((0..<16).map { _ in UInt8.random(in: .min ... .max) })
+        let key = archiveEncryptionKey(
+            passphrase: cleanPassphrase,
+            salt: salt,
+            iterations: Self.archiveEncryptionIterations
+        )
+        let sealed = try ChaChaPoly.seal(archiveData, using: key)
+        let envelope = BywayEncryptedArchive(
+            salt: salt,
+            iterations: Self.archiveEncryptionIterations,
+            sealedArchive: sealed.combined
+        )
+        return try encoder.encode(envelope)
+    }
+
+    func previewArchive(data: Data, strategy: ImportStrategy, passphrase: String? = nil) throws -> ArchivePreview {
+        let decoded = try decodedArchive(data: data, passphrase: passphrase)
+        let plan = try importPlan(for: decoded.archive, strategy: strategy)
+        return ArchivePreview(
+            archiveVersion: decoded.archive.version,
+            totalVariables: decoded.archive.variables.count,
+            variablesToImport: plan.variablesToImport.count,
+            skippedExisting: plan.skippedExisting,
+            overwrittenExisting: plan.overwrittenExisting,
+            removedExisting: plan.removedExisting,
+            attachments: decoded.archive.attachments.count,
+            folders: decoded.archive.folders.count,
+            attachmentBytes: decoded.archive.attachments.values.reduce(0) { $0 + $1.count },
+            isEncrypted: decoded.isEncrypted
+        )
+    }
+
     @discardableResult
-    func importArchive(data: Data, strategy: ImportStrategy) throws -> Int {
+    func importArchive(data: Data, strategy: ImportStrategy, passphrase: String? = nil) throws -> Int {
+        let decoded = try decodedArchive(data: data, passphrase: passphrase)
+        let archive = decoded.archive
+        let plan = try importPlan(for: archive, strategy: strategy)
+        let storage = try prepareStorage()
+
+        let importBackup = fileManager.temporaryDirectory
+            .appendingPathComponent("byway-import-\(UUID().uuidString)", isDirectory: true)
+        try backupProtectedDirectories(storage: storage, to: importBackup)
+        do {
+            for variable in plan.variablesToImport {
+                for file in fileReferences(in: variable.value) {
+                    guard let attachment = archive.attachments[file.id.uuidString] else { continue }
+                    let target = attachmentURL(for: file, storage: storage)
+                    try attachment.write(to: target, options: [.atomic])
+                }
+            }
+            _ = try applyTransaction(plan.mutations)
+            for folder in archive.folders {
+                try write(folder, storage: storage)
+            }
+            if strategy == .replaceAll {
+                let retainedIDs = Set(archive.folders.map(\.id))
+                for folder in try listFolders() where !retainedIDs.contains(folder.id) {
+                    let url = folderURL(id: folder.id, storage: storage)
+                    try? fileManager.removeItem(at: url)
+                }
+            }
+            _ = try? removeOrphanedAttachments(storage: storage)
+            try preserveImportUndoBackup(importBackup, storage: storage)
+        } catch {
+            try? restoreProtectedDirectories(storage: storage, from: importBackup)
+            try? fileManager.removeItem(at: importBackup)
+            throw error
+        }
+        return plan.variablesToImport.count
+    }
+
+    func canUndoLastImport() throws -> Bool {
+        let storage = try prepareStorage()
+        return fileManager.fileExists(atPath: importUndoBackupURL(storage: storage).path)
+    }
+
+    func undoLastImport() throws {
+        let storage = try prepareStorage()
+        let undoBackup = importUndoBackupURL(storage: storage)
+        guard fileManager.fileExists(atPath: undoBackup.path) else {
+            throw BywayError.invalidValue("There is no imported archive to undo.")
+        }
+        let currentBackup = fileManager.temporaryDirectory
+            .appendingPathComponent("byway-undo-\(UUID().uuidString)", isDirectory: true)
+        try backupProtectedDirectories(storage: storage, to: currentBackup)
+        do {
+            try restoreProtectedDirectories(storage: storage, from: undoBackup)
+            try fileManager.removeItem(at: undoBackup)
+            try fileManager.moveItem(at: currentBackup, to: undoBackup)
+        } catch {
+            try? restoreProtectedDirectories(storage: storage, from: currentBackup)
+            try? fileManager.removeItem(at: currentBackup)
+            throw error
+        }
+    }
+
+    private struct ImportPlan {
+        var variablesToImport: [GlobalVariable]
+        var mutations: [VariableMutation]
+        var skippedExisting: Int
+        var overwrittenExisting: Int
+        var removedExisting: Int
+    }
+
+    private func decodedArchive(data: Data, passphrase: String?) throws -> (archive: BywayArchive, isEncrypted: Bool) {
+        guard data.count <= Self.maximumArchiveBytes + 4_096 else {
+            throw BywayError.invalidValue("A byway archive cannot exceed 64 MB.")
+        }
+        if let envelope = try? decoder.decode(BywayEncryptedArchive.self, from: data),
+           envelope.format == BywayEncryptedArchive.format {
+            guard envelope.version <= BywayEncryptedArchive.currentVersion else {
+                throw BywayError.invalidValue("This encrypted archive was created by a newer version of byway.")
+            }
+            guard let passphrase, !passphrase.isEmpty else {
+                throw BywayError.invalidValue("Enter the passphrase for this encrypted archive.")
+            }
+            guard envelope.iterations >= 10_000, envelope.iterations <= 1_000_000 else {
+                throw BywayError.invalidValue("The encrypted archive uses unsupported security parameters.")
+            }
+            let key = archiveEncryptionKey(passphrase: passphrase, salt: envelope.salt, iterations: envelope.iterations)
+            do {
+                let sealedBox = try ChaChaPoly.SealedBox(combined: envelope.sealedArchive)
+                let plaintext = try ChaChaPoly.open(sealedBox, using: key)
+                return (try validatedArchive(data: plaintext), true)
+            } catch {
+                throw BywayError.invalidValue("The archive could not be decrypted. Check the passphrase.")
+            }
+        }
+        return (try validatedArchive(data: data), false)
+    }
+
+    private func validatedArchive(data: Data) throws -> BywayArchive {
         guard data.count <= Self.maximumArchiveBytes else {
             throw BywayError.invalidValue("A byway archive cannot exceed 64 MB.")
         }
@@ -800,7 +941,6 @@ actor VariableRepository {
             throw BywayError.invalidValue("The archive exceeds the supported variable, attachment, or file-size limits.")
         }
 
-        let storage = try prepareStorage()
         let archiveFolderIDs = Set(archive.folders.map(\.id))
         guard archiveFolderIDs.count == archive.folders.count else {
             throw BywayError.invalidValue("The archive contains duplicate folder IDs.")
@@ -823,60 +963,99 @@ actor VariableRepository {
             }
         }
 
+        return archive
+    }
+
+    private func importPlan(for archive: BywayArchive, strategy: ImportStrategy) throws -> ImportPlan {
         let existingVariables = try list(includeExpired: true)
         let existingKeys = Set(try existingVariables.map { try normalizedKey($0.key) })
         var mutations: [VariableMutation] = strategy == .replaceAll
             ? existingVariables.map { .delete(key: $0.key) }
             : []
         var variablesToImport: [GlobalVariable] = []
+        var skippedExisting = 0
+        var overwrittenExisting = 0
         for variable in archive.variables {
             let normalized = try normalizedKey(variable.key)
-            if strategy == .keepExisting && existingKeys.contains(normalized) { continue }
+            if strategy == .keepExisting && existingKeys.contains(normalized) {
+                skippedExisting += 1
+                continue
+            }
+            if existingKeys.contains(normalized) { overwrittenExisting += 1 }
             variablesToImport.append(variable)
             mutations.append(.replace(variable))
         }
+        let removedExisting = strategy == .replaceAll
+            ? existingVariables.filter { existing in
+                !archive.variables.contains { (try? normalizedKey($0.key)) == (try? normalizedKey(existing.key)) }
+            }.count
+            : 0
+        return ImportPlan(
+            variablesToImport: variablesToImport,
+            mutations: mutations,
+            skippedExisting: skippedExisting,
+            overwrittenExisting: overwrittenExisting,
+            removedExisting: removedExisting
+        )
+    }
 
-        let importBackup = fileManager.temporaryDirectory
-            .appendingPathComponent("byway-import-\(UUID().uuidString)", isDirectory: true)
-        try fileManager.createDirectory(at: importBackup, withIntermediateDirectories: true)
-        let protectedDirectories = [storage.variables, storage.attachments, storage.folders, storage.history]
-        for directory in protectedDirectories {
+    private func archiveEncryptionKey(passphrase: String, salt: Data, iterations: Int) -> SymmetricKey {
+        let password = Data(passphrase.utf8)
+        var material = salt + password
+        var digest = Data(SHA256.hash(data: material))
+        if iterations > 1 {
+            for _ in 1..<iterations {
+                material.removeAll(keepingCapacity: true)
+                material.append(digest)
+                material.append(salt)
+                material.append(password)
+                digest = Data(SHA256.hash(data: material))
+            }
+        }
+        return SymmetricKey(data: digest)
+    }
+
+    private func protectedDirectories(in storage: PreparedStorage) -> [URL] {
+        [storage.variables, storage.attachments, storage.folders, storage.history]
+    }
+
+    private func backupProtectedDirectories(storage: PreparedStorage, to backup: URL) throws {
+        try fileManager.createDirectory(at: backup, withIntermediateDirectories: true)
+        for directory in protectedDirectories(in: storage) {
             try fileManager.copyItem(
                 at: directory,
-                to: importBackup.appendingPathComponent(directory.lastPathComponent, isDirectory: true)
+                to: backup.appendingPathComponent(directory.lastPathComponent, isDirectory: true)
             )
         }
-        do {
-            for variable in variablesToImport {
-                for file in fileReferences(in: variable.value) {
-                    guard let attachment = archive.attachments[file.id.uuidString] else { continue }
-                    let target = attachmentURL(for: file, storage: storage)
-                    try attachment.write(to: target, options: [.atomic])
-                }
+    }
+
+    private func restoreProtectedDirectories(storage: PreparedStorage, from backup: URL) throws {
+        for directory in protectedDirectories(in: storage) {
+            let source = backup.appendingPathComponent(directory.lastPathComponent, isDirectory: true)
+            guard fileManager.fileExists(atPath: source.path) else {
+                throw BywayError.invalidValue("The import recovery backup is incomplete.")
             }
-            _ = try applyTransaction(mutations)
-            for folder in archive.folders {
-                try write(folder, storage: storage)
+            if fileManager.fileExists(atPath: directory.path) {
+                try fileManager.removeItem(at: directory)
             }
-            if strategy == .replaceAll {
-                let retainedIDs = Set(archive.folders.map(\.id))
-                for folder in try listFolders() where !retainedIDs.contains(folder.id) {
-                    let url = folderURL(id: folder.id, storage: storage)
-                    try? fileManager.removeItem(at: url)
-                }
-            }
-            _ = try? removeOrphanedAttachments(storage: storage)
-            try fileManager.removeItem(at: importBackup)
-        } catch {
-            for directory in protectedDirectories {
-                try? fileManager.removeItem(at: directory)
-                let backup = importBackup.appendingPathComponent(directory.lastPathComponent, isDirectory: true)
-                try? fileManager.copyItem(at: backup, to: directory)
-            }
-            try? fileManager.removeItem(at: importBackup)
-            throw error
+            try fileManager.copyItem(at: source, to: directory)
         }
-        return variablesToImport.count
+    }
+
+    private func importUndoBackupURL(storage: PreparedStorage) -> URL {
+        storage.status.rootURL
+            .appendingPathComponent("ImportUndo", isDirectory: true)
+            .appendingPathComponent("Latest", isDirectory: true)
+    }
+
+    private func preserveImportUndoBackup(_ temporaryBackup: URL, storage: PreparedStorage) throws {
+        let undoBackup = importUndoBackupURL(storage: storage)
+        let container = undoBackup.deletingLastPathComponent()
+        try fileManager.createDirectory(at: container, withIntermediateDirectories: true)
+        if fileManager.fileExists(atPath: undoBackup.path) {
+            try fileManager.removeItem(at: undoBackup)
+        }
+        try fileManager.moveItem(at: temporaryBackup, to: undoBackup)
     }
 
     @discardableResult

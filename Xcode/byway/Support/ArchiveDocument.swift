@@ -2,7 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ArchiveDocument: FileDocument {
-    static var readableContentTypes: [UTType] { [.bywayArchive, .json] }
+    static var readableContentTypes: [UTType] { [.bywayArchive, .bywayEncryptedArchive, .json, .data] }
 
     var data: Data
 

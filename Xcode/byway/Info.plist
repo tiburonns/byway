@@ -18,6 +18,7 @@
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.tiburonns.byway.archive</string>
+				<string>com.tiburonns.byway.encrypted-archive</string>
 			</array>
 		</dict>
 	</array>
@@ -75,6 +76,25 @@
 				</array>
 				<key>public.mime-type</key>
 				<string>application/vnd.tiburonns.byway+json</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Encrypted byway Variable Archive</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.tiburonns.byway.encrypted-archive</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>bywaye</string>
+				</array>
+				<key>public.mime-type</key>
+				<string>application/vnd.tiburonns.byway-encrypted</string>
 			</dict>
 		</dict>
 	</array>
