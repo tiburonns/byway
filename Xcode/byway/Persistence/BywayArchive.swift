@@ -1,6 +1,30 @@
 import Foundation
 import UniformTypeIdentifiers
 
+struct ArchivePreview: Sendable {
+    var archiveVersion: Int
+    var totalVariables: Int
+    var variablesToImport: Int
+    var skippedExisting: Int
+    var overwrittenExisting: Int
+    var removedExisting: Int
+    var attachments: Int
+    var folders: Int
+    var attachmentBytes: Int
+    var isEncrypted: Bool
+}
+
+struct BywayEncryptedArchive: Codable, Sendable {
+    static let format = "byway-encrypted-archive"
+    static let currentVersion = 1
+
+    var format = Self.format
+    var version = Self.currentVersion
+    var salt: Data
+    var iterations: Int
+    var sealedArchive: Data
+}
+
 struct BywayArchive: Codable, Sendable {
     static let currentVersion = 2
 
@@ -40,4 +64,5 @@ struct BywayArchive: Codable, Sendable {
 
 extension UTType {
     static let bywayArchive = UTType(exportedAs: "com.tiburonns.byway.archive", conformingTo: .json)
+    static let bywayEncryptedArchive = UTType(exportedAs: "com.tiburonns.byway.encrypted-archive", conformingTo: .data)
 }

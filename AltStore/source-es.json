@@ -20,6 +20,15 @@
       "category": "utilities",
       "versions": [
         {
+          "version": "0.5.0",
+          "buildVersion": "5",
+          "date": "2026-09-11",
+          "localizedDescription": "Añade exportaciones cifradas con contraseña, vista previa completa antes de importar, validación más segura y deshacer la última importación correcta con un toque.",
+          "downloadURL": "https://github.com/tiburonns/byway/releases/download/v0.5.0/Byway-0.5.0.ipa",
+          "size": 797006,
+          "minOSVersion": "17.0"
+        },
+        {
           "version": "0.4.0",
           "buildVersion": "4",
           "date": "2026-09-01",
@@ -36,6 +45,14 @@
     }
   ],
   "news": [
+    {
+      "title": "Byway 0.5.0 ya está disponible",
+      "identifier": "byway-0.5.0-es",
+      "caption": "Copias cifradas, vistas previas y una importación reversible.",
+      "date": "2026-09-11",
+      "tintColor": "#0A84FF",
+      "notify": true
+    },
     {
       "title": "Byway 0.4.0 ya está disponible",
       "identifier": "byway-0.4.0-es",

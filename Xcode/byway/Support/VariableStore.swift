@@ -122,10 +122,27 @@ final class VariableStore {
         try await repository.exportArchive()
     }
 
-    func importArchive(_ data: Data, strategy: ImportStrategy) async throws -> Int {
-        let count = try await repository.importArchive(data: data, strategy: strategy)
+    func exportEncryptedArchive(passphrase: String) async throws -> Data {
+        try await repository.exportEncryptedArchive(passphrase: passphrase)
+    }
+
+    func previewArchive(_ data: Data, strategy: ImportStrategy, passphrase: String?) async throws -> ArchivePreview {
+        try await repository.previewArchive(data: data, strategy: strategy, passphrase: passphrase)
+    }
+
+    func importArchive(_ data: Data, strategy: ImportStrategy, passphrase: String? = nil) async throws -> Int {
+        let count = try await repository.importArchive(data: data, strategy: strategy, passphrase: passphrase)
         await refresh()
         return count
+    }
+
+    func canUndoLastImport() async throws -> Bool {
+        try await repository.canUndoLastImport()
+    }
+
+    func undoLastImport() async throws {
+        try await repository.undoLastImport()
+        await refresh()
     }
 
     func removeExpired() async throws -> Int {
