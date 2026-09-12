@@ -92,17 +92,15 @@ struct VariableListView: View {
                 }
             }
 
-            if isEditing {
+            if !selection.isEmpty {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button { showsMoveDialog = true } label: {
                         Label("Move", systemImage: "folder")
                     }
-                    .disabled(selection.isEmpty)
 
                     Button(role: .destructive) { showsDeleteConfirmation = true } label: {
                         Label("Delete", systemImage: "trash")
                     }
-                    .disabled(selection.isEmpty)
                 }
 
                 #if os(iOS)
