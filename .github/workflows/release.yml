@@ -56,8 +56,14 @@ jobs:
 
       - name: Generate and validate AltStore metadata
         run: |
-          python3 script/update_altstore_sources.py             "$IPA_PATH"             AltStore/source.json             AltStore/source-es.json
-          python3 script/validate_altstore_sources.py             "$IPA_PATH"             AltStore/source.json             AltStore/source-es.json
+          python3 script/update_altstore_sources.py \
+            "$IPA_PATH" \
+            AltStore/source.json \
+            AltStore/source-es.json
+          python3 script/validate_altstore_sources.py \
+            "$IPA_PATH" \
+            AltStore/source.json \
+            AltStore/source-es.json
           cp AltStore/source.json "$RUNNER_TEMP/source.json"
           cp AltStore/source-es.json "$RUNNER_TEMP/source-es.json"
 
@@ -70,7 +76,11 @@ jobs:
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
             gh release upload "$GITHUB_REF_NAME" "$IPA_PATH" --clobber
           else
-            gh release create               "$GITHUB_REF_NAME"               "$IPA_PATH"               --title "Byway $APP_VERSION"               --generate-notes
+            gh release create \
+              "$GITHUB_REF_NAME" \
+              "$IPA_PATH" \
+              --title "Byway $APP_VERSION" \
+              --generate-notes
           fi
 
       - name: Publish AltStore sources to main
