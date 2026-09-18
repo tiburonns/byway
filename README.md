@@ -4,6 +4,10 @@
 
 Byway is a private data layer for Apple Shortcuts. It stores typed global variables, structured history, navigation, parking, music, and Home state so automations can share durable context without a Byway account or analytics service.
 
+## Main branch hardening
+
+The current source keeps encrypted-backup v1 compatibility while writing new encrypted archives as **v2 with PBKDF2-HMAC-SHA256 + ChaCha20-Poly1305**. iCloud-backed variable files are coordinated with `NSFileCoordinator`, and simple unresolved file conflicts are reconciled conservatively by revision and modification time. The privacy manifest also declares Byway's UserDefaults required-reason API correctly.
+
 ## Almost plug-and-play setup
 
 1. Install Byway 0.5.0 from the [Byway AltStore source](https://raw.githubusercontent.com/tiburonns/byway/main/AltStore/source.json).
