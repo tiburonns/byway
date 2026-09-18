@@ -797,7 +797,7 @@ actor VariableRepository {
         }
         let archiveData = try exportArchive(variableIDs: variableIDs, variableKeys: variableKeys)
         let salt = Data((0..<16).map { _ in UInt8.random(in: .min ... .max) })
-        let key = archiveEncryptionKey(
+        let key = pbkdf2ArchiveEncryptionKey(
             passphrase: cleanPassphrase,
             salt: salt,
             iterations: Self.archiveEncryptionIterations
@@ -915,7 +915,23 @@ actor VariableRepository {
             guard envelope.iterations >= 10_000, envelope.iterations <= 1_000_000 else {
                 throw BywayError.invalidValue("The encrypted archive uses unsupported security parameters.")
             }
-            let key = archiveEncryptionKey(passphrase: passphrase, salt: envelope.salt, iterations: envelope.iterations)
+            let key: SymmetricKey
+            if envelope.version == 1 {
+                key = legacyArchiveEncryptionKey(
+                    passphrase: passphrase,
+                    salt: envelope.salt,
+                    iterations: envelope.iterations
+                )
+            } else {
+                guard envelope.kdf == BywayEncryptedArchive.pbkdf2SHA256 else {
+                    throw BywayError.invalidValue("The encrypted archive uses an unsupported key derivation function.")
+                }
+                key = pbkdf2ArchiveEncryptionKey(
+                    passphrase: passphrase,
+                    salt: envelope.salt,
+                    iterations: envelope.iterations
+                )
+            }
             do {
                 let sealedBox = try ChaChaPoly.SealedBox(combined: envelope.sealedArchive)
                 let plaintext = try ChaChaPoly.open(sealedBox, using: key)
@@ -999,7 +1015,39 @@ actor VariableRepository {
         )
     }
 
-    private func archiveEncryptionKey(passphrase: String, salt: Data, iterations: Int) -> SymmetricKey {
+    private func pbkdf2ArchiveEncryptionKey(
+        passphrase: String,
+        salt: Data,
+        iterations: Int
+    ) -> SymmetricKey {
+        let passwordKey = SymmetricKey(data: Data(passphrase.utf8))
+        var blockIndex = UInt32(1).bigEndian
+        var initial = Data()
+        initial.append(salt)
+        withUnsafeBytes(of: &blockIndex) {
+            initial.append(contentsOf: $0)
+        }
+
+        var u = Data(HMAC<SHA256>.authenticationCode(for: initial, using: passwordKey))
+        var derived = u
+
+        if iterations > 1 {
+            for _ in 1..<iterations {
+                u = Data(HMAC<SHA256>.authenticationCode(for: u, using: passwordKey))
+                for index in derived.indices {
+                    derived[index] ^= u[index]
+                }
+            }
+        }
+
+        return SymmetricKey(data: derived.prefix(32))
+    }
+
+    private func legacyArchiveEncryptionKey(
+        passphrase: String,
+        salt: Data,
+        iterations: Int
+    ) -> SymmetricKey {
         let password = Data(passphrase.utf8)
         var material = salt + password
         var digest = Data(SHA256.hash(data: material))
