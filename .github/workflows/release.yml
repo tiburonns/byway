@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-15
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+
+      - name: Build AltStore IPA
+        run: |
+          chmod +x script/build_altstore_ipa.sh
+          script/build_altstore_ipa.sh
+
+      - name: Locate and validate release version
+        shell: bash
+        run: |
+          set -euo pipefail
+          IPA_PATH="$(find dist -maxdepth 1 -type f -name 'Byway-*.ipa' -print -quit)"
+          test -n "$IPA_PATH"
+
+          VERSION="$(python3 - "$IPA_PATH" <<'PY'
+          import plistlib
+          import sys
+          import zipfile
+
+          with zipfile.ZipFile(sys.argv[1]) as archive:
+              info_path = next(
+                  name for name in archive.namelist()
+                  if name.startswith("Payload/") and name.endswith(".app/Info.plist")
+              )
+              info = plistlib.loads(archive.read(info_path))
+          print(info["CFBundleShortVersionString"])
+          PY
+          )"
+
+          if [[ "v$VERSION" != "$GITHUB_REF_NAME" ]]; then
+            echo "Tag $GITHUB_REF_NAME does not match app version $VERSION" >&2
+            exit 1
+          fi
+
+          echo "IPA_PATH=$IPA_PATH" >> "$GITHUB_ENV"
+          echo "APP_VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Generate and validate AltStore metadata
+        run: |
+          python3 script/update_altstore_sources.py             "$IPA_PATH"             AltStore/source.json             AltStore/source-es.json
+          python3 script/validate_altstore_sources.py             "$IPA_PATH"             AltStore/source.json             AltStore/source-es.json
+          cp AltStore/source.json "$RUNNER_TEMP/source.json"
+          cp AltStore/source-es.json "$RUNNER_TEMP/source-es.json"
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "$IPA_PATH" --clobber
+          else
+            gh release create               "$GITHUB_REF_NAME"               "$IPA_PATH"               --title "Byway $APP_VERSION"               --generate-notes
+          fi
+
+      - name: Publish AltStore sources to main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout -B main origin/main
+          cp "$RUNNER_TEMP/source.json" AltStore/source.json
+          cp "$RUNNER_TEMP/source-es.json" AltStore/source-es.json
+
+          if git diff --quiet -- AltStore/source.json AltStore/source-es.json; then
+            echo "AltStore sources already match the release."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add AltStore/source.json AltStore/source-es.json
+          git commit -m "release: publish Byway $APP_VERSION to AltStore sources"
+          git push origin main
