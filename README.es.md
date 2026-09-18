@@ -6,6 +6,8 @@ Byway es una capa de datos privada para Atajos de Apple. Guarda variables global
 
 ## Endurecimiento de la rama main
 
+**`main` actual: 0.5.1 (build 6).** La última versión distribuida por AltStore sigue siendo 0.5.0 hasta publicar una nueva release.
+
 El código actual mantiene compatibilidad con backups cifrados v1, pero los nuevos archivos cifrados se escriben como **v2 con PBKDF2-HMAC-SHA256 + ChaCha20-Poly1305**. Los archivos de variables respaldados por iCloud se coordinan mediante `NSFileCoordinator` y los conflictos simples sin resolver se reconcilian de forma conservadora según revisión y fecha de modificación. El manifiesto de privacidad también declara correctamente el uso requerido de UserDefaults.
 
 ## Instalación casi plug and play
