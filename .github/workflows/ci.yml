@@ -24,3 +24,7 @@ jobs:
           -scheme byway
           -destination 'generic/platform=iOS Simulator'
           CODE_SIGNING_ALLOWED=NO
+      - name: Package AltStore IPA
+        run: |
+          chmod +x script/build_altstore_ipa.sh
+          script/build_altstore_ipa.sh
