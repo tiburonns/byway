@@ -16,13 +16,31 @@ struct ArchivePreview: Sendable {
 
 struct BywayEncryptedArchive: Codable, Sendable {
     static let format = "byway-encrypted-archive"
-    static let currentVersion = 1
+    static let currentVersion = 2
+    static let pbkdf2SHA256 = "pbkdf2-hmac-sha256"
 
     var format = Self.format
     var version = Self.currentVersion
+    var kdf: String? = Self.pbkdf2SHA256
     var salt: Data
     var iterations: Int
     var sealedArchive: Data
+
+    init(
+        format: String = Self.format,
+        version: Int = Self.currentVersion,
+        kdf: String? = Self.pbkdf2SHA256,
+        salt: Data,
+        iterations: Int,
+        sealedArchive: Data
+    ) {
+        self.format = format
+        self.version = version
+        self.kdf = kdf
+        self.salt = salt
+        self.iterations = iterations
+        self.sealedArchive = sealedArchive
+    }
 }
 
 struct BywayArchive: Codable, Sendable {
