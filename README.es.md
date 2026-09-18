@@ -4,6 +4,10 @@ Español · [English](README.md)
 
 Byway es una capa de datos privada para Atajos de Apple. Guarda variables globales tipadas, historial estructurado y el estado de navegación, estacionamiento, música y Casa para que tus automatizaciones compartan contexto persistente sin una cuenta de Byway ni servicios de analíticas.
 
+## Endurecimiento de la rama main
+
+El código actual mantiene compatibilidad con backups cifrados v1, pero los nuevos archivos cifrados se escriben como **v2 con PBKDF2-HMAC-SHA256 + ChaCha20-Poly1305**. Los archivos de variables respaldados por iCloud se coordinan mediante `NSFileCoordinator` y los conflictos simples sin resolver se reconcilian de forma conservadora según revisión y fecha de modificación. El manifiesto de privacidad también declara correctamente el uso requerido de UserDefaults.
+
 ## Instalación casi plug and play
 
 1. Instala Byway 0.5.0 desde la [fuente de Byway para AltStore](https://raw.githubusercontent.com/tiburonns/byway/main/AltStore/source-es.json).
