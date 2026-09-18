@@ -146,6 +146,11 @@ struct AdvancedCoreIntegration {
             variableKeys: ["TEST.Mode"],
             passphrase: "correct horse battery staple"
         )
+        let encryptedEnvelope = try JSONDecoder().decode(BywayEncryptedArchive.self, from: encrypted)
+        guard encryptedEnvelope.version == 2,
+              encryptedEnvelope.kdf == BywayEncryptedArchive.pbkdf2SHA256 else {
+            throw TestFailure("New encrypted backups did not use the version 2 PBKDF2 format")
+        }
         _ = try await repository.set(key: "TEST.Mode", value: .text("Changed after backup"))
         let preview = try await repository.previewArchive(
             data: encrypted,
