@@ -1,5 +1,6 @@
 import CryptoKit
 import Foundation
+import Security
 
 actor VariableRepository {
     static let shared = VariableRepository()
@@ -802,7 +803,7 @@ actor VariableRepository {
             throw BywayError.invalidValue("Use a passphrase with at least 8 characters.")
         }
         let archiveData = try exportArchive(variableIDs: variableIDs, variableKeys: variableKeys)
-        let salt = Data((0..<16).map { _ in UInt8.random(in: .min ... .max) })
+        let salt = try secureRandomData(count: 16)
         let key = pbkdf2ArchiveEncryptionKey(
             passphrase: cleanPassphrase,
             salt: salt,
@@ -1019,6 +1020,14 @@ actor VariableRepository {
             overwrittenExisting: overwrittenExisting,
             removedExisting: removedExisting
         )
+    }
+
+    private func secureRandomData(count: Int) throws -> Data {
+        var bytes = [UInt8](repeating: 0, count: count)
+        guard SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes) == errSecSuccess else {
+            throw BywayError.invalidValue("Could not generate secure random data for the encrypted archive.")
+        }
+        return Data(bytes)
     }
 
     private func pbkdf2ArchiveEncryptionKey(
