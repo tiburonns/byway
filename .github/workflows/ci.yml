@@ -11,6 +11,12 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Validate release and privacy contract
+        run: |
+          python3 Tests/validate-release-contract.py
+          plutil -lint Xcode/byway/Resources/PrivacyInfo.xcprivacy
+          plutil -lint Xcode/byway/byway.entitlements
+          plutil -lint Xcode/byway/byway.local.entitlements
       - name: Core integration tests
         run: ./Tests/run-core-tests.sh
       - name: App Intent integration tests
