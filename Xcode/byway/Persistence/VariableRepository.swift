@@ -69,8 +69,7 @@ actor VariableRepository {
         return urls
             .filter { $0.pathExtension == "json" }
             .compactMap { url in
-                guard let data = try? Data(contentsOf: url) else { return nil }
-                return try? decoder.decode(GlobalVariable.self, from: data)
+                try? readVariable(at: url)
             }
             .filter { includeExpired || !$0.isExpired }
             .filter { variable in
@@ -97,7 +96,7 @@ actor VariableRepository {
             throw BywayError.notFound(key)
         }
 
-        let variable = try decoder.decode(GlobalVariable.self, from: Data(contentsOf: url))
+        let variable = try readVariable(at: url)
         if variable.isExpired && !includeExpired {
             throw BywayError.notFound(key)
         }
@@ -215,7 +214,13 @@ actor VariableRepository {
         let normalized = try normalizedKey(key)
         let storage = try prepareStorage()
         let url = variableURL(forNormalizedKey: normalized, storage: storage)
-        let previousData = fileManager.fileExists(atPath: url.path) ? try Data(contentsOf: url) : nil
+        let previousData: Data?
+        if fileManager.fileExists(atPath: url.path) {
+            try resolveVariableConflictsIfNeeded(at: url)
+            previousData = try coordinatedReadData(at: url)
+        } else {
+            previousData = nil
+        }
         let existing = try previousData.map { try decoder.decode(GlobalVariable.self, from: $0) }
 
         var variable = existing ?? GlobalVariable(key: key.trimmingCharacters(in: .whitespacesAndNewlines), value: value)
@@ -270,7 +275,7 @@ actor VariableRepository {
         variable.revision += 1
         try write(variable, to: newURL)
         if oldURL != newURL, fileManager.fileExists(atPath: oldURL.path) {
-            try fileManager.removeItem(at: oldURL)
+            try coordinatedRemoveItem(at: oldURL)
         }
         try recordChange(
             VariableChange(
@@ -289,8 +294,9 @@ actor VariableRepository {
         let variable = try variable(forKey: key, includeExpired: true)
         let storage = try prepareStorage()
         let url = variableURL(forNormalizedKey: try normalizedKey(key), storage: storage)
-        let originalData = try Data(contentsOf: url)
-        try fileManager.removeItem(at: url)
+        try resolveVariableConflictsIfNeeded(at: url)
+        let originalData = try coordinatedReadData(at: url)
+        try coordinatedRemoveItem(at: url)
         do {
             try recordChange(VariableChange(
                 variableID: variable.id,
@@ -556,7 +562,7 @@ actor VariableRepository {
                 let url = variableURL(forNormalizedKey: normalized, storage: storage)
                 let existing: GlobalVariable?
                 if fileManager.fileExists(atPath: url.path) {
-                    existing = try decoder.decode(GlobalVariable.self, from: Data(contentsOf: url))
+                    existing = try readVariable(at: url)
                 } else {
                     existing = nil
                 }
@@ -630,7 +636,7 @@ actor VariableRepository {
                 if let variable = entry.current {
                     try write(variable, to: url)
                 } else if fileManager.fileExists(atPath: url.path) {
-                    try fileManager.removeItem(at: url)
+                    try coordinatedRemoveItem(at: url)
                 }
             }
             for change in changes {
@@ -732,7 +738,7 @@ actor VariableRepository {
         snapshot.updatedAt = .now
         snapshot.revision += 1
         let url = variableURL(forNormalizedKey: try normalizedKey(snapshot.key), storage: storage)
-        let existing = try? decoder.decode(GlobalVariable.self, from: Data(contentsOf: url))
+        let existing = try? readVariable(at: url)
         try write(snapshot, to: url)
         try recordChange(
             VariableChange(
@@ -1214,18 +1220,170 @@ actor VariableRepository {
         }
     }
 
+    private func readVariable(at url: URL) throws -> GlobalVariable {
+        try resolveVariableConflictsIfNeeded(at: url)
+        return try decoder.decode(
+            GlobalVariable.self,
+            from: coordinatedReadData(at: url)
+        )
+    }
+
     private func write(_ variable: GlobalVariable, to url: URL) throws {
-        try encoder.encode(variable).write(to: url, options: [.atomic])
+        try coordinatedWriteData(encoder.encode(variable), to: url)
     }
 
     private func write(_ folder: VariableFolder, storage: PreparedStorage) throws {
-        try encoder.encode(folder).write(to: folderURL(id: folder.id, storage: storage), options: [.atomic])
+        try coordinatedWriteData(
+            encoder.encode(folder),
+            to: folderURL(id: folder.id, storage: storage)
+        )
     }
 
     private func recordChange(_ change: VariableChange, storage: PreparedStorage) throws {
         let url = storage.history.appendingPathComponent("\(change.id.uuidString).json")
-        try encoder.encode(change).write(to: url, options: [.atomic])
+        try coordinatedWriteData(encoder.encode(change), to: url)
         try pruneHistory(storage: storage)
+    }
+
+    private func coordinatedReadData(at url: URL) throws -> Data {
+        let coordinator = NSFileCoordinator(filePresenter: nil)
+        var coordinationError: NSError?
+        var result: Result<Data, Error>?
+
+        coordinator.coordinate(
+            readingItemAt: url,
+            options: [],
+            error: &coordinationError
+        ) { coordinatedURL in
+            result = Result {
+                try Data(contentsOf: coordinatedURL)
+            }
+        }
+
+        if let coordinationError {
+            throw coordinationError
+        }
+        guard let result else {
+            throw BywayError.storageUnavailable
+        }
+        return try result.get()
+    }
+
+    private func coordinatedWriteData(_ data: Data, to url: URL) throws {
+        let coordinator = NSFileCoordinator(filePresenter: nil)
+        var coordinationError: NSError?
+        var writeError: Error?
+
+        coordinator.coordinate(
+            writingItemAt: url,
+            options: [],
+            error: &coordinationError
+        ) { coordinatedURL in
+            do {
+                try data.write(to: coordinatedURL, options: [.atomic])
+            } catch {
+                writeError = error
+            }
+        }
+
+        if let coordinationError {
+            throw coordinationError
+        }
+        if let writeError {
+            throw writeError
+        }
+    }
+
+    private func coordinatedRemoveItem(at url: URL) throws {
+        guard fileManager.fileExists(atPath: url.path) else { return }
+
+        let coordinator = NSFileCoordinator(filePresenter: nil)
+        var coordinationError: NSError?
+        var removeError: Error?
+
+        coordinator.coordinate(
+            writingItemAt: url,
+            options: .forDeleting,
+            error: &coordinationError
+        ) { coordinatedURL in
+            do {
+                try fileManager.removeItem(at: coordinatedURL)
+            } catch {
+                removeError = error
+            }
+        }
+
+        if let coordinationError {
+            throw coordinationError
+        }
+        if let removeError {
+            throw removeError
+        }
+    }
+
+    private func resolveVariableConflictsIfNeeded(at url: URL) throws {
+        guard fileManager.fileExists(atPath: url.path),
+              let conflicts = NSFileVersion.unresolvedConflictVersionsOfItem(at: url),
+              !conflicts.isEmpty else {
+            return
+        }
+
+        let coordinator = NSFileCoordinator(filePresenter: nil)
+        var coordinationError: NSError?
+        var resolutionError: Error?
+
+        coordinator.coordinate(
+            writingItemAt: url,
+            options: [],
+            error: &coordinationError
+        ) { coordinatedURL in
+            do {
+                var candidates: [(variable: GlobalVariable, data: Data)] = []
+
+                if let currentData = try? Data(contentsOf: coordinatedURL),
+                   let current = try? decoder.decode(GlobalVariable.self, from: currentData) {
+                    candidates.append((current, currentData))
+                }
+
+                for version in conflicts {
+                    guard let data = try? Data(contentsOf: version.url),
+                          let variable = try? decoder.decode(GlobalVariable.self, from: data) else {
+                        continue
+                    }
+                    candidates.append((variable, data))
+                }
+
+                guard let winner = candidates.max(by: { left, right in
+                    if left.variable.revision != right.variable.revision {
+                        return left.variable.revision < right.variable.revision
+                    }
+                    if left.variable.updatedAt != right.variable.updatedAt {
+                        return left.variable.updatedAt < right.variable.updatedAt
+                    }
+                    return left.variable.id.uuidString < right.variable.id.uuidString
+                }) else {
+                    throw BywayError.invalidValue(
+                        "An iCloud conflict could not be decoded safely."
+                    )
+                }
+
+                try winner.data.write(to: coordinatedURL, options: [.atomic])
+
+                for version in conflicts {
+                    version.isResolved = true
+                    try? version.remove()
+                }
+            } catch {
+                resolutionError = error
+            }
+        }
+
+        if let coordinationError {
+            throw coordinationError
+        }
+        if let resolutionError {
+            throw resolutionError
+        }
     }
 
     private func updatedVariable(
