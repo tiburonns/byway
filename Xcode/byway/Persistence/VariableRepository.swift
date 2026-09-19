@@ -1127,22 +1127,43 @@ actor VariableRepository {
     }
 
     private func removeOrphanedAttachments(storage: PreparedStorage) throws -> Int {
-        let variables = try readVariables(storage: storage, includeExpired: true)
-        let liveIDs = Set(variables.flatMap { fileReferences(in: $0.value).map(\.id) })
+        let variables = try readVariables(
+            storage: storage,
+            includeExpired: true
+        )
+        var referencedIDs = Set(
+            variables.flatMap {
+                fileReferences(in: $0.value).map(\.id)
+            }
+        )
 
         let historyURLs = try fileManager.contentsOfDirectory(
             at: storage.history,
             includingPropertiesForKeys: nil,
             options: [.skipsHiddenFiles]
-        ).filter { $0.pathExtension == "json" }
+        ).filter {
+            $0.pathExtension == "json"
+        }
+
+        // History is part of Byway's restore contract. An attachment referenced
+        // by retained history is not orphaned even if the current variable no
+        // longer points to it.
         for url in historyURLs {
-            guard let data = try? Data(contentsOf: url),
-                  let change = try? decoder.decode(VariableChange.self, from: data) else { continue }
-            let historicalIDs = fileReferenceIDs(in: change.previous?.value)
-                .union(fileReferenceIDs(in: change.current?.value))
-            if !historicalIDs.isSubset(of: liveIDs) {
-                try? fileManager.removeItem(at: url)
-            }
+            let data = try coordinatedReadData(at: url)
+            let change = try decoder.decode(
+                VariableChange.self,
+                from: data
+            )
+            referencedIDs.formUnion(
+                fileReferenceIDs(
+                    in: change.previous?.value
+                )
+            )
+            referencedIDs.formUnion(
+                fileReferenceIDs(
+                    in: change.current?.value
+                )
+            )
         }
 
         var removed = 0
@@ -1151,12 +1172,23 @@ actor VariableRepository {
             includingPropertiesForKeys: nil,
             options: [.skipsHiddenFiles]
         )
+
         for url in attachmentURLs {
-            let identifier = url.deletingPathExtension().lastPathComponent
-            guard let id = UUID(uuidString: identifier), !liveIDs.contains(id) else { continue }
-            try fileManager.removeItem(at: url)
+            let identifier =
+                url.deletingPathExtension()
+                    .lastPathComponent
+            guard let id = UUID(
+                uuidString: identifier
+            ),
+            !referencedIDs.contains(id)
+            else {
+                continue
+            }
+
+            try coordinatedRemoveItem(at: url)
             removed += 1
         }
+
         return removed
     }
 
@@ -1514,9 +1546,23 @@ actor VariableRepository {
         }.sorted {
             $0.date < $1.date
         }
-        for item in sorted.prefix(max(0, sorted.count - maximum)) {
-            try? fileManager.removeItem(at: item.url)
+        let expiredHistory = sorted.prefix(
+            max(0, sorted.count - maximum)
+        )
+
+        guard !expiredHistory.isEmpty else {
+            return
         }
+
+        for item in expiredHistory {
+            try coordinatedRemoveItem(at: item.url)
+        }
+
+        // Once old history is gone, file attachments that are no longer
+        // reachable from current state or retained history can be reclaimed.
+        _ = try removeOrphanedAttachments(
+            storage: storage
+        )
     }
 
     private func normalizedKey(_ key: String) throws -> String {
