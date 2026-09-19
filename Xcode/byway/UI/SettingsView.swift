@@ -101,6 +101,16 @@ struct SettingsView: View {
                         }
                     }
                 }
+
+                if store.quarantinedFileCount > 0 {
+                    LabeledContent(
+                        "Recovered damaged files",
+                        value: store.quarantinedFileCount.formatted()
+                    )
+                    Text("Damaged storage records are preserved in Byway's Quarantine folder instead of being deleted silently.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             Section("Shortcuts") {
