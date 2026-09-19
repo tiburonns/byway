@@ -1501,21 +1501,19 @@ actor VariableRepository {
                     candidates.append((variable, data))
                 }
 
-                guard let winner = candidates.max(by: { left, right in
-                    if left.variable.revision != right.variable.revision {
-                        return left.variable.revision < right.variable.revision
-                    }
-                    if left.variable.updatedAt != right.variable.updatedAt {
-                        return left.variable.updatedAt < right.variable.updatedAt
-                    }
-                    return left.variable.id.uuidString < right.variable.id.uuidString
-                }) else {
+                let variables = candidates.map(\.variable)
+                guard let winnerIndex = VariableConflictResolver.preferredIndex(
+                    in: variables
+                ) else {
                     throw BywayError.invalidValue(
                         "An iCloud conflict could not be decoded safely."
                     )
                 }
 
-                try winner.data.write(to: coordinatedURL, options: [.atomic])
+                try candidates[winnerIndex].data.write(
+                    to: coordinatedURL,
+                    options: [.atomic]
+                )
 
                 for version in conflicts {
                     version.isResolved = true
@@ -1736,4 +1734,40 @@ struct VariableRepositorySnapshot: Sendable {
     var changes: [VariableChange]
     var storageStatus: StorageStatus
     var quarantinedFileCount: Int
+}
+
+
+enum VariableConflictResolver {
+    static func preferredIndex(
+        in variables: [GlobalVariable]
+    ) -> Int? {
+        variables.indices.max { leftIndex, rightIndex in
+            prefers(
+                variables[rightIndex],
+                over: variables[leftIndex]
+            )
+        }
+    }
+
+    static func preferred(
+        from variables: [GlobalVariable]
+    ) -> GlobalVariable? {
+        guard let index = preferredIndex(in: variables) else {
+            return nil
+        }
+        return variables[index]
+    }
+
+    private static func prefers(
+        _ candidate: GlobalVariable,
+        over current: GlobalVariable
+    ) -> Bool {
+        if candidate.revision != current.revision {
+            return candidate.revision > current.revision
+        }
+        if candidate.updatedAt != current.updatedAt {
+            return candidate.updatedAt > current.updatedAt
+        }
+        return candidate.id.uuidString > current.id.uuidString
+    }
 }
