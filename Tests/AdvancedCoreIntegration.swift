@@ -148,6 +148,21 @@ struct AdvancedCoreIntegration {
             throw TestFailure("Repository snapshot did not return a consistent state")
         }
 
+        let storage = try await repository.storageStatus()
+        let corruptVariableURL = storage.rootURL
+            .appendingPathComponent("Variables", isDirectory: true)
+            .appendingPathComponent("corrupt-test.json")
+        try Data("{not-valid-json".utf8).write(
+            to: corruptVariableURL,
+            options: [.atomic]
+        )
+        let recoveredSnapshot = try await repository.snapshot()
+        guard recoveredSnapshot.quarantinedFileCount == 1,
+              !FileManager.default.fileExists(atPath: corruptVariableURL.path) else {
+            throw TestFailure("A corrupted variable was not preserved in quarantine")
+        }
+
+
         let folder = try await repository.createFolder(name: "Shared Tests")
         guard try await repository.listFolders().contains(where: { $0.id == folder.id }) else {
             throw TestFailure("An empty folder was not persisted")
@@ -260,7 +275,7 @@ struct AdvancedCoreIntegration {
             throw TestFailure("Undo import did not restore the prior state")
         }
 
-        print("PASS: transactions, rollback, nested dictionaries, null, lists, events, restorable file history, folders, PBKDF2 compatibility, legacy encrypted archives, encrypted archives, previews, and import undo")
+        print("PASS: transactions, rollback, nested dictionaries, null, lists, events, restorable file history, corruption quarantine, folders, PBKDF2 compatibility, legacy encrypted archives, encrypted archives, previews, and import undo")
     }
 }
 
