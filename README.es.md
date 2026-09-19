@@ -48,4 +48,4 @@ xcodebuild -project Xcode/byway.xcodeproj -scheme byway -sdk iphonesimulator \
   -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
 ```
 
-Consulta [Distribution/README.es.md](Distribution/README.es.md) para conocer el contenido del paquete.
+Consulta [Distribution/README.es.md](Distribution/README.es.md) para conocer el contenido del paquete. Antes de considerar una compilación lista para distribución, ejecuta el [plan de aceptación física de iCloud](docs/TESTING.es.md).
