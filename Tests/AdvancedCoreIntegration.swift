@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 
 @main
@@ -181,6 +182,46 @@ struct AdvancedCoreIntegration {
             throw TestFailure("Deleting a folder did not retain its variables outside a folder")
         }
 
+        let pbkdf2Vector = BywayArchiveCrypto.pbkdf2SHA256Data(
+            passphrase: "password",
+            salt: Data("salt".utf8),
+            iterations: 2
+        )
+        let pbkdf2Hex = pbkdf2Vector.map { String(format: "%02x", $0) }.joined()
+        guard pbkdf2Hex == "ae4d0c95af6b46d32d0adff928f06dd02a303f8ef3c251dfd6e2d85a95474c43" else {
+            throw TestFailure("PBKDF2-HMAC-SHA256 did not match the known compatibility vector")
+        }
+
+        let legacyPlaintext = try await repository.exportArchive(variableKeys: ["TEST.Mode"])
+        let legacySalt = Data((0..<16).map(UInt8.init))
+        let legacyKey = BywayArchiveCrypto.legacyKey(
+            passphrase: "legacy backup passphrase",
+            salt: legacySalt,
+            iterations: 10_000
+        )
+        let legacySealed = try ChaChaPoly.seal(
+            legacyPlaintext,
+            using: legacyKey
+        )
+        let legacyEnvelope = BywayEncryptedArchive(
+            version: 1,
+            kdf: nil,
+            salt: legacySalt,
+            iterations: 10_000,
+            sealedArchive: legacySealed.combined
+        )
+        let legacyArchiveData = try JSONEncoder().encode(legacyEnvelope)
+        let legacyPreview = try await repository.previewArchive(
+            data: legacyArchiveData,
+            strategy: .overwrite,
+            passphrase: "legacy backup passphrase"
+        )
+        guard legacyPreview.isEncrypted,
+              legacyPreview.archiveVersion <= BywayArchive.currentVersion,
+              legacyPreview.variablesToImport == 1 else {
+            throw TestFailure("Version 1 encrypted backups are no longer readable")
+        }
+
         let encrypted = try await repository.exportEncryptedArchive(
             variableKeys: ["TEST.Mode"],
             passphrase: "correct horse battery staple"
@@ -219,7 +260,7 @@ struct AdvancedCoreIntegration {
             throw TestFailure("Undo import did not restore the prior state")
         }
 
-        print("PASS: transactions, rollback, nested dictionaries, null, lists, events, restorable file history, folders, encrypted archives, previews, and import undo")
+        print("PASS: transactions, rollback, nested dictionaries, null, lists, events, restorable file history, folders, PBKDF2 compatibility, legacy encrypted archives, encrypted archives, previews, and import undo")
     }
 }
 
