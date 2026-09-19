@@ -94,12 +94,51 @@ struct AdvancedCoreIntegration {
               try await repository.fileData(for: storedFile) == Data("temporary attachment".utf8) else {
             throw TestFailure("Atomic file storage failed")
         }
-        _ = try await repository.set(key: "TEST.File", value: .text("replaced"))
-        do {
-            _ = try await repository.fileData(for: storedFile)
-            throw TestFailure("Replacing a file variable left an orphaned attachment")
-        } catch BywayError.missingFile {
-            // Expected: cleanup removes the attachment and its unrestorable history entry.
+        _ = try await repository.set(
+            key: "TEST.File",
+            value: .text("replaced")
+        )
+
+        guard try await repository.fileData(
+            for: storedFile
+        ) == Data("temporary attachment".utf8) else {
+            throw TestFailure(
+                "Replacing a file variable removed an attachment still required by history"
+            )
+        }
+
+        let fileHistory = try await repository.history(
+            limit: 50
+        )
+        guard let restorableFileChange =
+            fileHistory.first(where: { change in
+                guard change.key == "TEST.File",
+                      let previous = change.previous?.value,
+                      case .file(let historicalFile) = previous
+                else {
+                    return false
+                }
+                return historicalFile.id == storedFile.id
+            })
+        else {
+            throw TestFailure(
+                "Replacing a file variable lost its restorable history entry"
+            )
+        }
+
+        let restoredFileVariable = try await repository.restore(
+            changeID: restorableFileChange.id
+        )
+        guard case .file(let restoredFile) =
+                restoredFileVariable.value,
+              restoredFile.id == storedFile.id,
+              try await repository.fileData(
+                for: restoredFile
+              ) == Data("temporary attachment".utf8)
+        else {
+            throw TestFailure(
+                "History restore could not recover a previous file value"
+            )
         }
 
         let snapshot = try await repository.snapshot(matching: "TEST.")
@@ -180,7 +219,7 @@ struct AdvancedCoreIntegration {
             throw TestFailure("Undo import did not restore the prior state")
         }
 
-        print("PASS: transactions, rollback, nested dictionaries, null, lists, events, folders, encrypted archives, previews, and import undo")
+        print("PASS: transactions, rollback, nested dictionaries, null, lists, events, restorable file history, folders, encrypted archives, previews, and import undo")
     }
 }
 
