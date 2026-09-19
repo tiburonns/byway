@@ -8,6 +8,7 @@ final class VariableStore {
     private(set) var folders: [VariableFolder] = []
     private(set) var changes: [VariableChange] = []
     private(set) var storageStatus: StorageStatus?
+    private(set) var quarantinedFileCount = 0
     var isLoading = false
     var errorMessage: String?
 
@@ -26,6 +27,7 @@ final class VariableStore {
             folders = snapshot.folders
             changes = snapshot.changes
             storageStatus = snapshot.storageStatus
+            quarantinedFileCount = snapshot.quarantinedFileCount
             errorMessage = nil
         } catch {
             errorMessage = error.localizedDescription
