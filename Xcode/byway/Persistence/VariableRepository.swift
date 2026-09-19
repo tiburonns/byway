@@ -36,7 +36,8 @@ actor VariableRepository {
             variables: try readVariables(storage: storage, matching: query),
             folders: try readFolders(storage: storage),
             changes: try readHistory(storage: storage, limit: historyLimit),
-            storageStatus: storage.status
+            storageStatus: storage.status,
+            quarantinedFileCount: try quarantinedFileCount(storage: storage)
         )
     }
 
@@ -67,11 +68,20 @@ actor VariableRepository {
         )
 
         let normalizedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        return urls
-            .filter { $0.pathExtension == "json" }
-            .compactMap { url in
-                try? readVariable(at: url)
+        var decodedVariables: [GlobalVariable] = []
+        for url in urls where url.pathExtension == "json" {
+            do {
+                decodedVariables.append(try readVariable(at: url))
+            } catch is DecodingError {
+                try quarantineCorruptItem(
+                    at: url,
+                    storage: storage,
+                    category: "variable"
+                )
             }
+        }
+
+        return decodedVariables
             .filter { includeExpired || !$0.isExpired }
             .filter { variable in
                 guard let tag else { return true }
@@ -126,22 +136,34 @@ actor VariableRepository {
     }
 
     private func readFolders(storage: PreparedStorage) throws -> [VariableFolder] {
-        return try fileManager.contentsOfDirectory(
+        let urls = try fileManager.contentsOfDirectory(
             at: storage.folders,
             includingPropertiesForKeys: nil,
             options: [.skipsHiddenFiles]
         )
-        .filter { $0.pathExtension == "json" }
-        .compactMap { url in
-            guard let data = try? coordinatedReadData(at: url) else {
-                return nil
+        var folders: [VariableFolder] = []
+
+        for url in urls where url.pathExtension == "json" {
+            do {
+                let data = try coordinatedReadData(at: url)
+                folders.append(
+                    try decoder.decode(
+                        VariableFolder.self,
+                        from: data
+                    )
+                )
+            } catch is DecodingError {
+                try quarantineCorruptItem(
+                    at: url,
+                    storage: storage,
+                    category: "folder"
+                )
             }
-            return try? decoder.decode(
-                VariableFolder.self,
-                from: data
-            )
         }
-        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+
+        return folders.sorted {
+            $0.name.localizedStandardCompare($1.name) == .orderedAscending
+        }
     }
 
     @discardableResult
@@ -1255,6 +1277,7 @@ actor VariableRepository {
         var folders: URL
         var history: URL
         var transactions: URL
+        var quarantine: URL
     }
 
     private struct TransactionEntry {
@@ -1277,7 +1300,8 @@ actor VariableRepository {
         let folders = status.rootURL.appendingPathComponent("Folders", isDirectory: true)
         let history = status.rootURL.appendingPathComponent("History", isDirectory: true)
         let transactions = status.rootURL.appendingPathComponent("Transactions", isDirectory: true)
-        for directory in [variables, attachments, folders, history, transactions] {
+        let quarantine = status.rootURL.appendingPathComponent("Quarantine", isDirectory: true)
+        for directory in [variables, attachments, folders, history, transactions, quarantine] {
             try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
         }
 
@@ -1291,7 +1315,8 @@ actor VariableRepository {
             attachments: attachments,
             folders: folders,
             history: history,
-            transactions: transactions
+            transactions: transactions,
+            quarantine: quarantine
         )
         try recoverTransactions(storage: storage)
         return storage
@@ -1300,7 +1325,7 @@ actor VariableRepository {
     private func migrateLocalData(to destination: URL) throws {
         let local = try BywayStorage.localRoot()
         guard local != destination, fileManager.fileExists(atPath: local.path) else { return }
-        for directoryName in ["Variables", "Attachments", "Folders", "History"] {
+        for directoryName in ["Variables", "Attachments", "Folders", "History", "Quarantine"] {
             let sourceDirectory = local.appendingPathComponent(directoryName, isDirectory: true)
             let destinationDirectory = destination.appendingPathComponent(directoryName, isDirectory: true)
             try fileManager.createDirectory(at: destinationDirectory, withIntermediateDirectories: true)
@@ -1315,6 +1340,32 @@ actor VariableRepository {
                 try? fileManager.copyItem(at: source, to: target)
             }
         }
+    }
+
+    private func quarantinedFileCount(storage: PreparedStorage) throws -> Int {
+        try fileManager.contentsOfDirectory(
+            at: storage.quarantine,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        ).filter { !$0.hasDirectoryPath }.count
+    }
+
+    private func quarantineCorruptItem(
+        at url: URL,
+        storage: PreparedStorage,
+        category: String
+    ) throws {
+        let data = try coordinatedReadData(at: url)
+        let timestamp = Int(Date().timeIntervalSince1970)
+        let destination = storage.quarantine
+            .appendingPathComponent(
+                "\(category)-\(timestamp)-\(UUID().uuidString)-\(url.lastPathComponent)"
+            )
+
+        // Preserve the original bytes before removing the active copy. If the
+        // quarantine write fails, the source file is left untouched.
+        try coordinatedWriteData(data, to: destination)
+        try coordinatedRemoveItem(at: url)
     }
 
     private func readVariable(at url: URL) throws -> GlobalVariable {
@@ -1684,4 +1735,5 @@ struct VariableRepositorySnapshot: Sendable {
     var folders: [VariableFolder]
     var changes: [VariableChange]
     var storageStatus: StorageStatus
+    var quarantinedFileCount: Int
 }
