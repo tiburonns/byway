@@ -115,3 +115,6 @@
 "Choose file" = "Elegir archivo";
 "Null has no value" = "Nulo no contiene ningún valor";
 "OK" = "Aceptar";
+
+"Recovered damaged files" = "Archivos dañados recuperados";
+"Damaged storage records are preserved in Byway's Quarantine folder instead of being deleted silently." = "Los registros de almacenamiento dañados se conservan en la carpeta Cuarentena de Byway en lugar de eliminarse silenciosamente.";
