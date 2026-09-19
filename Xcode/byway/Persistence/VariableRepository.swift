@@ -274,31 +274,69 @@ actor VariableRepository {
         let oldNormalized = try normalizedKey(variable.key)
         let newNormalized = try normalizedKey(newKey)
         let storage = try prepareStorage()
-        let oldURL = variableURL(forNormalizedKey: oldNormalized, storage: storage)
-        let newURL = variableURL(forNormalizedKey: newNormalized, storage: storage)
+        let oldURL = variableURL(
+            forNormalizedKey: oldNormalized,
+            storage: storage
+        )
+        let newURL = variableURL(
+            forNormalizedKey: newNormalized,
+            storage: storage
+        )
 
-        if oldNormalized != newNormalized, fileManager.fileExists(atPath: newURL.path) {
+        if oldNormalized != newNormalized,
+           fileManager.fileExists(atPath: newURL.path) {
             throw BywayError.duplicateKey(newKey)
         }
 
         let previous = variable
-        variable.key = newKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        let previousData = try coordinatedReadData(
+            at: oldURL
+        )
+
+        variable.key = newKey.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
         variable.updatedAt = .now
         variable.revision += 1
+
         try write(variable, to: newURL)
-        if oldURL != newURL, fileManager.fileExists(atPath: oldURL.path) {
-            try coordinatedRemoveItem(at: oldURL)
+
+        do {
+            if oldURL != newURL,
+               fileManager.fileExists(
+                atPath: oldURL.path
+               ) {
+                try coordinatedRemoveItem(
+                    at: oldURL
+                )
+            }
+
+            try recordChange(
+                VariableChange(
+                    variableID: variable.id,
+                    key: variable.key,
+                    operation: .update,
+                    previous: previous,
+                    current: variable
+                ),
+                storage: storage
+            )
+        } catch {
+            // A rename and its history entry are one logical operation.
+            // Restore the original variable if either removal or history
+            // recording fails.
+            try? coordinatedWriteData(
+                previousData,
+                to: oldURL
+            )
+            if oldURL != newURL {
+                try? coordinatedRemoveItem(
+                    at: newURL
+                )
+            }
+            throw error
         }
-        try recordChange(
-            VariableChange(
-                variableID: variable.id,
-                key: variable.key,
-                operation: .update,
-                previous: previous,
-                current: variable
-            ),
-            storage: storage
-        )
+
         return variable
     }
 
@@ -766,6 +804,15 @@ actor VariableRepository {
         guard var snapshot = change.previous ?? change.current else {
             throw BywayError.invalidValue("This history item has no restorable snapshot.")
         }
+
+        // Refuse to restore a dangling file reference. The current state must
+        // remain unchanged if a historical attachment is unavailable.
+        for file in fileReferences(
+            in: snapshot.value
+        ) {
+            _ = try fileData(for: file)
+        }
+
         snapshot.updatedAt = .now
         snapshot.revision += 1
         let url = variableURL(forNormalizedKey: try normalizedKey(snapshot.key), storage: storage)
