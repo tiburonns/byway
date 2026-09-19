@@ -1115,27 +1115,11 @@ actor VariableRepository {
         salt: Data,
         iterations: Int
     ) -> SymmetricKey {
-        let passwordKey = SymmetricKey(data: Data(passphrase.utf8))
-        var blockIndex = UInt32(1).bigEndian
-        var initial = Data()
-        initial.append(salt)
-        withUnsafeBytes(of: &blockIndex) {
-            initial.append(contentsOf: $0)
-        }
-
-        var u = Data(HMAC<SHA256>.authenticationCode(for: initial, using: passwordKey))
-        var derived = u
-
-        if iterations > 1 {
-            for _ in 1..<iterations {
-                u = Data(HMAC<SHA256>.authenticationCode(for: u, using: passwordKey))
-                for index in derived.indices {
-                    derived[index] ^= u[index]
-                }
-            }
-        }
-
-        return SymmetricKey(data: derived.prefix(32))
+        BywayArchiveCrypto.pbkdf2SHA256Key(
+            passphrase: passphrase,
+            salt: salt,
+            iterations: iterations
+        )
     }
 
     private func legacyArchiveEncryptionKey(
@@ -1143,19 +1127,11 @@ actor VariableRepository {
         salt: Data,
         iterations: Int
     ) -> SymmetricKey {
-        let password = Data(passphrase.utf8)
-        var material = salt + password
-        var digest = Data(SHA256.hash(data: material))
-        if iterations > 1 {
-            for _ in 1..<iterations {
-                material.removeAll(keepingCapacity: true)
-                material.append(digest)
-                material.append(salt)
-                material.append(password)
-                digest = Data(SHA256.hash(data: material))
-            }
-        }
-        return SymmetricKey(data: digest)
+        BywayArchiveCrypto.legacyKey(
+            passphrase: passphrase,
+            salt: salt,
+            iterations: iterations
+        )
     }
 
     private func protectedDirectories(in storage: PreparedStorage) -> [URL] {
