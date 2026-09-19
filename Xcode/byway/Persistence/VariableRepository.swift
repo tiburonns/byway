@@ -132,7 +132,15 @@ actor VariableRepository {
             options: [.skipsHiddenFiles]
         )
         .filter { $0.pathExtension == "json" }
-        .compactMap { try? decoder.decode(VariableFolder.self, from: Data(contentsOf: $0)) }
+        .compactMap { url in
+            guard let data = try? coordinatedReadData(at: url) else {
+                return nil
+            }
+            return try? decoder.decode(
+                VariableFolder.self,
+                from: data
+            )
+        }
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
@@ -177,7 +185,7 @@ actor VariableRepository {
         }
         let url = folderURL(id: id, storage: storage)
         if fileManager.fileExists(atPath: url.path) {
-            try fileManager.removeItem(at: url)
+            try coordinatedRemoveItem(at: url)
         }
     }
 
@@ -248,9 +256,12 @@ actor VariableRepository {
             }
         } catch {
             if let previousData {
-                try? previousData.write(to: url, options: [.atomic])
+                try? coordinatedWriteData(
+                    previousData,
+                    to: url
+                )
             } else {
-                try? fileManager.removeItem(at: url)
+                try? coordinatedRemoveItem(at: url)
             }
             throw error
         }
@@ -310,7 +321,10 @@ actor VariableRepository {
                 _ = try? removeOrphanedAttachments(storage: storage)
             }
         } catch {
-            try? originalData.write(to: url, options: [.atomic])
+            try? coordinatedWriteData(
+                originalData,
+                to: url
+            )
             throw error
         }
     }
@@ -676,7 +690,7 @@ actor VariableRepository {
         let storage = try prepareStorage()
         let file = StoredFile(filename: filename, contentType: contentType, byteCount: data.count)
         let url = attachmentURL(for: file, storage: storage)
-        try data.write(to: url, options: [.atomic])
+        try coordinatedWriteData(data, to: url)
         return file
     }
 
@@ -694,7 +708,12 @@ actor VariableRepository {
         } catch {
             let storage = try? prepareStorage()
             if let storage {
-                try? fileManager.removeItem(at: attachmentURL(for: file, storage: storage))
+                try? coordinatedRemoveItem(
+                    at: attachmentURL(
+                        for: file,
+                        storage: storage
+                    )
+                )
             }
             throw error
         }
@@ -706,7 +725,7 @@ actor VariableRepository {
         guard fileManager.fileExists(atPath: url.path) else {
             throw BywayError.missingFile(file.filename)
         }
-        return try Data(contentsOf: url)
+        return try coordinatedReadData(at: url)
     }
 
     func history(limit: Int = 200) throws -> [VariableChange] {
@@ -722,7 +741,15 @@ actor VariableRepository {
         )
         return urls
             .filter { $0.pathExtension == "json" }
-            .compactMap { try? decoder.decode(VariableChange.self, from: Data(contentsOf: $0)) }
+            .compactMap { url in
+            guard let data = try? coordinatedReadData(at: url) else {
+                return nil
+            }
+            return try? decoder.decode(
+                VariableChange.self,
+                from: data
+            )
+        }
             .sorted { $0.timestamp > $1.timestamp }
             .prefix(max(0, limit))
             .map { $0 }
@@ -732,7 +759,10 @@ actor VariableRepository {
     func restore(changeID: UUID) throws -> GlobalVariable {
         let storage = try prepareStorage()
         let changeURL = storage.history.appendingPathComponent("\(changeID.uuidString).json")
-        let change = try decoder.decode(VariableChange.self, from: Data(contentsOf: changeURL))
+        let change = try decoder.decode(
+            VariableChange.self,
+            from: coordinatedReadData(at: changeURL)
+        )
         guard var snapshot = change.previous ?? change.current else {
             throw BywayError.invalidValue("This history item has no restorable snapshot.")
         }
@@ -850,7 +880,10 @@ actor VariableRepository {
                 for file in fileReferences(in: variable.value) {
                     guard let attachment = archive.attachments[file.id.uuidString] else { continue }
                     let target = attachmentURL(for: file, storage: storage)
-                    try attachment.write(to: target, options: [.atomic])
+                    try coordinatedWriteData(
+                        attachment,
+                        to: target
+                    )
                 }
             }
             _ = try applyTransaction(plan.mutations)
@@ -861,7 +894,7 @@ actor VariableRepository {
                 let retainedIDs = Set(archive.folders.map(\.id))
                 for folder in try listFolders() where !retainedIDs.contains(folder.id) {
                     let url = folderURL(id: folder.id, storage: storage)
-                    try? fileManager.removeItem(at: url)
+                    try coordinatedRemoveItem(at: url)
                 }
             }
             _ = try? removeOrphanedAttachments(storage: storage)
@@ -1538,8 +1571,13 @@ actor VariableRepository {
         )
         guard files.count > maximum else { return }
         let sorted = files.compactMap { url -> (url: URL, date: Date)? in
-            guard let data = try? Data(contentsOf: url),
-                  let change = try? decoder.decode(VariableChange.self, from: data) else {
+            guard let data = try? coordinatedReadData(
+                at: url
+            ),
+            let change = try? decoder.decode(
+                VariableChange.self,
+                from: data
+            ) else {
                 return nil
             }
             return (url, change.timestamp)
