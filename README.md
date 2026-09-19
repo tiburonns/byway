@@ -48,4 +48,4 @@ xcodebuild -project Xcode/byway.xcodeproj -scheme byway -sdk iphonesimulator \
   -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
 ```
 
-See [Distribution/README.md](Distribution/README.md) for package details.
+See [Distribution/README.md](Distribution/README.md) for package details. Before calling a build release-ready, run the [physical iCloud acceptance plan](docs/TESTING.md).
