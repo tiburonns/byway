@@ -115,3 +115,6 @@
 "Choose file" = "Choose file";
 "Null has no value" = "Null has no value";
 "OK" = "OK";
+
+"Recovered damaged files" = "Recovered damaged files";
+"Damaged storage records are preserved in Byway's Quarantine folder instead of being deleted silently." = "Damaged storage records are preserved in Byway's Quarantine folder instead of being deleted silently.";
