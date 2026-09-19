@@ -8,7 +8,7 @@ Byway is a private data layer for Apple Shortcuts. It stores typed global variab
 
 **Current `main`: 0.5.1 (build 6).** The latest AltStore release remains 0.5.0 until a new release is published.
 
-The current source keeps encrypted-backup v1 compatibility while writing new encrypted archives as **v2 with PBKDF2-HMAC-SHA256 + ChaCha20-Poly1305**. iCloud-backed variable files are coordinated with `NSFileCoordinator`, and simple unresolved file conflicts are reconciled conservatively by revision and modification time. The privacy manifest also declares Byway's UserDefaults required-reason API correctly.
+The current source keeps encrypted-backup v1 compatibility while writing new encrypted archives as **v2 with PBKDF2-HMAC-SHA256 + ChaCha20-Poly1305**. PBKDF2 is checked against a known compatibility vector and CI now constructs and reads a real legacy v1 encrypted archive. iCloud-backed variable files are coordinated with `NSFileCoordinator`; conflict precedence is deterministic and tested (revision, modification time, then UUID). Corrupted variable or folder records are preserved in a Quarantine directory instead of disappearing silently, and Settings surfaces the number of recovered records. The privacy manifest also declares Byway's UserDefaults required-reason API correctly.
 
 ## Almost plug-and-play setup
 
