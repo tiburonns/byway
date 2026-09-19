@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import UniformTypeIdentifiers
 
@@ -83,4 +84,93 @@ struct BywayArchive: Codable, Sendable {
 extension UTType {
     static let bywayArchive = UTType(exportedAs: "com.tiburonns.byway.archive", conformingTo: .json)
     static let bywayEncryptedArchive = UTType(exportedAs: "com.tiburonns.byway.encrypted-archive", conformingTo: .data)
+}
+
+
+enum BywayArchiveCrypto {
+    static func pbkdf2SHA256Data(
+        passphrase: String,
+        salt: Data,
+        iterations: Int,
+        keyLength: Int = 32
+    ) -> Data {
+        precondition(iterations > 0)
+        precondition(keyLength > 0)
+
+        let passwordKey = SymmetricKey(data: Data(passphrase.utf8))
+        var output = Data()
+        var blockIndex: UInt32 = 1
+
+        while output.count < keyLength {
+            var bigEndianBlock = blockIndex.bigEndian
+            var initial = Data()
+            initial.append(salt)
+            withUnsafeBytes(of: &bigEndianBlock) {
+                initial.append(contentsOf: $0)
+            }
+
+            var u = Data(
+                HMAC<SHA256>.authenticationCode(
+                    for: initial,
+                    using: passwordKey
+                )
+            )
+            var block = u
+
+            if iterations > 1 {
+                for _ in 1..<iterations {
+                    u = Data(
+                        HMAC<SHA256>.authenticationCode(
+                            for: u,
+                            using: passwordKey
+                        )
+                    )
+                    for index in block.indices {
+                        block[index] ^= u[index]
+                    }
+                }
+            }
+
+            output.append(block)
+            blockIndex &+= 1
+        }
+
+        return output.prefix(keyLength)
+    }
+
+    static func pbkdf2SHA256Key(
+        passphrase: String,
+        salt: Data,
+        iterations: Int
+    ) -> SymmetricKey {
+        SymmetricKey(
+            data: pbkdf2SHA256Data(
+                passphrase: passphrase,
+                salt: salt,
+                iterations: iterations
+            )
+        )
+    }
+
+    static func legacyKey(
+        passphrase: String,
+        salt: Data,
+        iterations: Int
+    ) -> SymmetricKey {
+        let password = Data(passphrase.utf8)
+        var material = salt + password
+        var digest = Data(SHA256.hash(data: material))
+
+        if iterations > 1 {
+            for _ in 1..<iterations {
+                material.removeAll(keepingCapacity: true)
+                material.append(digest)
+                material.append(salt)
+                material.append(password)
+                digest = Data(SHA256.hash(data: material))
+            }
+        }
+
+        return SymmetricKey(data: digest)
+    }
 }
