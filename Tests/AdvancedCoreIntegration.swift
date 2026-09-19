@@ -237,6 +237,54 @@ struct AdvancedCoreIntegration {
             throw TestFailure("Version 1 encrypted backups are no longer readable")
         }
 
+        let olderID = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
+        let newerID = UUID(uuidString: "00000000-0000-0000-0000-000000000002")!
+        let revisionWinner = GlobalVariable(
+            id: olderID,
+            key: "TEST.Conflict",
+            value: .text("revision"),
+            updatedAt: Date(timeIntervalSince1970: 100),
+            revision: 3
+        )
+        let timestampCandidate = GlobalVariable(
+            id: newerID,
+            key: "TEST.Conflict",
+            value: .text("timestamp"),
+            updatedAt: Date(timeIntervalSince1970: 200),
+            revision: 2
+        )
+        guard VariableConflictResolver.preferred(
+            from: [timestampCandidate, revisionWinner]
+        )?.value == .text("revision") else {
+            throw TestFailure("Conflict resolution did not prioritize revision")
+        }
+
+        let timestampWinner = GlobalVariable(
+            id: olderID,
+            key: "TEST.Conflict",
+            value: .text("newer timestamp"),
+            updatedAt: Date(timeIntervalSince1970: 300),
+            revision: 3
+        )
+        guard VariableConflictResolver.preferred(
+            from: [revisionWinner, timestampWinner]
+        )?.value == .text("newer timestamp") else {
+            throw TestFailure("Conflict resolution did not use updatedAt as the second tie-breaker")
+        }
+
+        let deterministicTieWinner = GlobalVariable(
+            id: newerID,
+            key: "TEST.Conflict",
+            value: .text("stable UUID tie-break"),
+            updatedAt: Date(timeIntervalSince1970: 300),
+            revision: 3
+        )
+        guard VariableConflictResolver.preferred(
+            from: [timestampWinner, deterministicTieWinner]
+        )?.id == newerID else {
+            throw TestFailure("Conflict resolution did not use a deterministic UUID tie-breaker")
+        }
+
         let encrypted = try await repository.exportEncryptedArchive(
             variableKeys: ["TEST.Mode"],
             passphrase: "correct horse battery staple"
@@ -275,7 +323,7 @@ struct AdvancedCoreIntegration {
             throw TestFailure("Undo import did not restore the prior state")
         }
 
-        print("PASS: transactions, rollback, nested dictionaries, null, lists, events, restorable file history, corruption quarantine, folders, PBKDF2 compatibility, legacy encrypted archives, encrypted archives, previews, and import undo")
+        print("PASS: transactions, rollback, nested dictionaries, null, lists, events, restorable file history, corruption quarantine, deterministic conflict resolution, folders, PBKDF2 compatibility, legacy encrypted archives, encrypted archives, previews, and import undo")
     }
 }
 
