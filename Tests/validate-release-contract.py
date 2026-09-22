@@ -29,6 +29,38 @@ if "CODE_SIGN_ENTITLEMENTS = byway/byway.local.entitlements;" not in project:
 if "CODE_SIGN_ENTITLEMENTS = byway/byway.entitlements;" not in project:
     raise SystemExit("build contract failed: iCloud entitlement configuration is missing")
 
+
+altstore_builder = (ROOT / "script/build_altstore_ipa.sh").read_text(encoding="utf-8")
+if "CODE_SIGN_ENTITLEMENTS=byway/byway.local.entitlements" not in altstore_builder:
+    raise SystemExit(
+        "build contract failed: AltStore builder must force the local entitlement set"
+    )
+if "CODE_SIGN_ENTITLEMENTS=byway/byway.entitlements" in altstore_builder:
+    raise SystemExit(
+        "build contract failed: AltStore builder must never request the iCloud entitlement set"
+    )
+
+local_entitlements = (ROOT / "Xcode/byway/byway.local.entitlements").read_text(encoding="utf-8")
+icloud_entitlements = (ROOT / "Xcode/byway/byway.entitlements").read_text(encoding="utf-8")
+for forbidden in [
+    "com.apple.developer.icloud-container-identifiers",
+    "com.apple.developer.icloud-services",
+    "com.apple.developer.ubiquity-container-identifiers",
+]:
+    if forbidden in local_entitlements:
+        raise SystemExit(
+            f"build contract failed: local entitlement file unexpectedly contains {forbidden}"
+        )
+for required in [
+    "com.apple.developer.icloud-container-identifiers",
+    "com.apple.developer.icloud-services",
+    "com.apple.developer.ubiquity-container-identifiers",
+]:
+    if required not in icloud_entitlements:
+        raise SystemExit(
+            f"build contract failed: iCloud entitlement file is missing {required}"
+        )
+
 source_en = json.loads((ROOT / "AltStore/source.json").read_text(encoding="utf-8"))
 source_es = json.loads((ROOT / "AltStore/source-es.json").read_text(encoding="utf-8"))
 
