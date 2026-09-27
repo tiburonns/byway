@@ -24,6 +24,15 @@ if f"**`main` actual: {version} (build {build}).**" not in readme_es:
 if "DEVELOPMENT_TEAM =" in project:
     raise SystemExit("build contract failed: repository must not hardcode an Apple Development Team")
 
+if not (ROOT / "LICENSE").exists():
+    raise SystemExit("repository contract failed: public repository requires LICENSE")
+testflight = ROOT / "docs/TESTFLIGHT.md"
+if not testflight.exists():
+    raise SystemExit("release contract failed: docs/TESTFLIGHT.md is missing")
+testflight_text = testflight.read_text(encoding="utf-8")
+if "CryptoKit" not in testflight_text or "export compliance" not in testflight_text.lower():
+    raise SystemExit("release contract failed: TestFlight guide must document CryptoKit/export compliance review")
+
 if "CODE_SIGN_ENTITLEMENTS = byway/byway.local.entitlements;" not in project:
     raise SystemExit("build contract failed: local entitlement configuration is missing")
 if "CODE_SIGN_ENTITLEMENTS = byway/byway.entitlements;" not in project:
