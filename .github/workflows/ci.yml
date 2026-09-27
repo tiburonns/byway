@@ -23,13 +23,25 @@ jobs:
         run: ./Tests/run-intent-tests.sh
       - name: Shortcut localization audit
         run: ./Tests/run-shortcut-audit.sh
-      - name: Build iOS app
+      - name: Build Release for iOS Simulator
         run: >-
           xcodebuild build
           -project Xcode/byway.xcodeproj
           -scheme byway
+          -configuration Release
           -destination 'generic/platform=iOS Simulator'
           CODE_SIGNING_ALLOWED=NO
+          SWIFT_TREAT_WARNINGS_AS_ERRORS=YES
+
+      - name: Build Release for iPhoneOS
+        run: >-
+          xcodebuild build
+          -project Xcode/byway.xcodeproj
+          -scheme byway
+          -configuration Release
+          -destination 'generic/platform=iOS'
+          CODE_SIGNING_ALLOWED=NO
+          SWIFT_TREAT_WARNINGS_AS_ERRORS=YES
       - name: Package AltStore IPA
         run: |
           chmod +x script/build_altstore_ipa.sh
