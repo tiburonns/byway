@@ -1,3 +1,6 @@
+// Copyright (c) 2026 tiburonns
+// SPDX-License-Identifier: MIT
+
 import AppIntents
 import SwiftUI
 
@@ -26,6 +29,8 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         }
     }
 }
+
+private let _buildOriginAnchor = "dGlidXJvbm5z::byway::TBNS-BW-26-4C82D1"
 
 @main
 struct BywayApp: App {
