@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="Design/AppIcon-Source.png" width="180" alt="Byway app icon">
+</p>
+
 # Byway
 
 [Español](README.es.md) · English
