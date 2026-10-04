@@ -118,3 +118,19 @@
 
 "Recovered damaged files" = "Archivos dañados recuperados";
 "Damaged storage records are preserved in Byway's Quarantine folder instead of being deleted silently." = "Los registros de almacenamiento dañados se conservan en la carpeta Cuarentena de Byway en lugar de eliminarse silenciosamente.";
+
+"Appearance" = "Apariencia";
+"Accent color" = "Color de acento";
+"Blue" = "Azul";
+"Indigo" = "Índigo";
+"Purple" = "Morado";
+"Pink" = "Rosa";
+"Red" = "Rojo";
+"Orange" = "Naranja";
+"Green" = "Verde";
+"Teal" = "Verde azulado";
+"Cyan" = "Cian";
+"Custom" = "Personalizado";
+"Custom color" = "Color personalizado";
+"Preview" = "Vista previa";
+"Accent color is applied across tabs, buttons, controls, selections, and other interactive elements." = "El color de acento se aplica a pestañas, botones, controles, selecciones y otros elementos interactivos.";
