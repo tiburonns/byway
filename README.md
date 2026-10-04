@@ -28,6 +28,10 @@ The Spanish shortcut collection is available in [Distribution/Shortcuts/es](Dist
 
 Open **Byway → Settings → Language** and choose System Default, English, or Spanish. The choice is saved locally and applies immediately.
 
+## Appearance
+
+Open **Byway → Settings → Appearance** to choose the app accent color. You can use the app default, one of the built-in presets, or a fully custom color. The preference is stored locally and updates tabs, buttons, controls, selections, and other interactive elements immediately while preserving the system light/dark appearance.
+
 ## AltStore
 
 - English source: `https://raw.githubusercontent.com/tiburonns/byway/main/AltStore/source.json`
