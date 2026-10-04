@@ -21,6 +21,8 @@ struct SettingsView: View {
     @State private var canUndoImport = false
     @State private var statusMessage: String?
     @AppStorage(AppLanguage.storageKey) private var languageValue = AppLanguage.system.rawValue
+    @AppStorage(AppAccentColor.storageKey) private var accentColorValue = AppAccentColor.system.rawValue
+    @AppStorage(AppAccentColor.customHexStorageKey) private var customAccentHex = AppAccentColor.defaultCustomHex
 
     var body: some View {
         Form {
@@ -30,6 +32,37 @@ struct SettingsView: View {
                         Text(language.titleKey).tag(language.rawValue)
                     }
                 }
+            }
+
+            Section("Appearance") {
+                Picker("Accent color", selection: $accentColorValue) {
+                    ForEach(AppAccentColor.allCases) { accent in
+                        Text(accent.titleKey).tag(accent.rawValue)
+                    }
+                }
+
+                if selectedAccent == .custom {
+                    ColorPicker(
+                        "Custom color",
+                        selection: customAccentBinding,
+                        supportsOpacity: false
+                    )
+                }
+
+                HStack {
+                    Label("Preview", systemImage: "circle.fill")
+                        .foregroundStyle(selectedAccentColor)
+                    Spacer()
+                    if selectedAccent == .custom {
+                        Text(customAccentHex.uppercased())
+                            .font(.caption.monospaced())
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Text("Accent color is applied across tabs, buttons, controls, selections, and other interactive elements.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             Section("Storage") {
@@ -184,6 +217,25 @@ struct SettingsView: View {
         } message: {
             Text(statusMessage ?? "")
         }
+    }
+
+    private var selectedAccent: AppAccentColor {
+        AppAccentColor(rawValue: accentColorValue) ?? .system
+    }
+
+    private var selectedAccentColor: Color {
+        selectedAccent.color(customHex: customAccentHex)
+    }
+
+    private var customAccentBinding: Binding<Color> {
+        Binding(
+            get: { Color(bywayHex: customAccentHex) ?? .blue },
+            set: { newColor in
+                if let hex = newColor.bywayHex {
+                    customAccentHex = hex
+                }
+            }
+        )
     }
 
     private func prepareExport() async {

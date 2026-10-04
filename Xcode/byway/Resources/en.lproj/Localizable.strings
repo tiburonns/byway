@@ -118,3 +118,19 @@
 
 "Recovered damaged files" = "Recovered damaged files";
 "Damaged storage records are preserved in Byway's Quarantine folder instead of being deleted silently." = "Damaged storage records are preserved in Byway's Quarantine folder instead of being deleted silently.";
+
+"Appearance" = "Appearance";
+"Accent color" = "Accent color";
+"Blue" = "Blue";
+"Indigo" = "Indigo";
+"Purple" = "Purple";
+"Pink" = "Pink";
+"Red" = "Red";
+"Orange" = "Orange";
+"Green" = "Green";
+"Teal" = "Teal";
+"Cyan" = "Cyan";
+"Custom" = "Custom";
+"Custom color" = "Custom color";
+"Preview" = "Preview";
+"Accent color is applied across tabs, buttons, controls, selections, and other interactive elements." = "Accent color is applied across tabs, buttons, controls, selections, and other interactive elements.";

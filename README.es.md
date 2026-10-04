@@ -24,6 +24,10 @@ La colección de atajos en inglés está disponible en [Distribution/Shortcuts/e
 
 Abre **Byway → Ajustes → Idioma** y elige Predeterminado del sistema, English o Español. La selección se guarda localmente y se aplica de inmediato.
 
+## Apariencia
+
+Abre **Byway → Ajustes → Apariencia** para elegir el color de acento de la aplicación. Puedes usar el valor predeterminado, uno de los colores incluidos o un color completamente personalizado. La preferencia se guarda localmente y se aplica de inmediato a pestañas, botones, controles, selecciones y otros elementos interactivos, respetando el modo claro u oscuro del sistema.
+
 ## AltStore
 
 - Fuente en español: `https://raw.githubusercontent.com/tiburonns/byway/main/AltStore/source-es.json`
