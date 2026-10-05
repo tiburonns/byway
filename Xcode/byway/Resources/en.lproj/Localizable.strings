@@ -134,3 +134,18 @@
 "Custom color" = "Custom color";
 "Preview" = "Preview";
 "Accent color is applied across tabs, buttons, controls, selections, and other interactive elements." = "Accent color is applied across tabs, buttons, controls, selections, and other interactive elements.";
+
+"Support" = "Support";
+"Questions, suggestions and feedback" = "Questions, suggestions and feedback";
+"Open GitHub Issues" = "Open GitHub Issues";
+"Question" = "Question";
+"Suggestion" = "Suggestion";
+"Bug / Error" = "Bug / Error";
+"General feedback" = "General feedback";
+"Type" = "Type";
+"Category" = "Category";
+"Message" = "Message";
+"Do not include passwords, archive passphrases, file contents, iCloud identifiers, or other sensitive information." = "Do not include passwords, archive passphrases, file contents, iCloud identifiers, or other sensitive information.";
+"Open in GitHub" = "Open in GitHub";
+"GitHub will open so you can review and publish the report yourself." = "GitHub will open so you can review and publish the report yourself.";
+"Feedback" = "Feedback";
