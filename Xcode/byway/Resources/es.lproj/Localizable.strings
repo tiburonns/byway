@@ -134,3 +134,18 @@
 "Custom color" = "Color personalizado";
 "Preview" = "Vista previa";
 "Accent color is applied across tabs, buttons, controls, selections, and other interactive elements." = "El color de acento se aplica a pestañas, botones, controles, selecciones y otros elementos interactivos.";
+
+"Support" = "Soporte";
+"Questions, suggestions and feedback" = "Dudas, sugerencias y feedback";
+"Open GitHub Issues" = "Abrir Issues de GitHub";
+"Question" = "Duda";
+"Suggestion" = "Sugerencia";
+"Bug / Error" = "Error";
+"General feedback" = "Feedback general";
+"Type" = "Tipo";
+"Category" = "Categoría";
+"Message" = "Mensaje";
+"Do not include passwords, archive passphrases, file contents, iCloud identifiers, or other sensitive information." = "No incluyas contraseñas, claves de archivos exportados, contenido de archivos, identificadores de iCloud ni otra información sensible.";
+"Open in GitHub" = "Abrir en GitHub";
+"GitHub will open so you can review and publish the report yourself." = "GitHub se abrirá para que revises y publiques el reporte tú mismo.";
+"Feedback" = "Feedback";

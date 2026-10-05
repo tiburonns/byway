@@ -151,6 +151,19 @@ struct SettingsView: View {
                     .font(.callout)
             }
 
+            Section("Support") {
+                NavigationLink {
+                    BywayFeedbackView()
+                } label: {
+                    Label("Questions, suggestions and feedback", systemImage: "bubble.left.and.bubble.right")
+                }
+
+                Link(
+                    "Open GitHub Issues",
+                    destination: URL(string: "https://github.com/tiburonns/byway/issues")!
+                )
+            }
+
             Section("Privacy") {
                 Label("No account and no analytics", systemImage: "hand.raised.fill")
                 Text("Your variables remain in the app sandbox or your private iCloud Drive container.")
@@ -305,5 +318,98 @@ struct SettingsView: View {
         let key = count == 1 ? singular : plural
         let format = String(localized: String.LocalizationValue(key), locale: language.locale)
         return String.localizedStringWithFormat(format, count)
+    }
+}
+
+
+private struct BywayFeedbackView: View {
+    private enum Category: String, CaseIterable, Identifiable {
+        case question, suggestion, bug, feedback
+        var id: String { rawValue }
+
+        var titleKey: LocalizedStringKey {
+            switch self {
+            case .question: "Question"
+            case .suggestion: "Suggestion"
+            case .bug: "Bug / Error"
+            case .feedback: "General feedback"
+            }
+        }
+
+        var issuePrefix: String {
+            switch self {
+            case .question: "Question"
+            case .suggestion: "Suggestion"
+            case .bug: "Bug"
+            case .feedback: "Feedback"
+            }
+        }
+    }
+
+    @Environment(\.openURL) private var openURL
+    @State private var category = Category.question
+    @State private var message = ""
+
+    var body: some View {
+        Form {
+            Section("Type") {
+                Picker("Category", selection: $category) {
+                    ForEach(Category.allCases) { option in
+                        Text(option.titleKey).tag(option)
+                    }
+                }
+            }
+
+            Section("Message") {
+                TextEditor(text: $message)
+                    .frame(minHeight: 160)
+
+                Text("Do not include passwords, archive passphrases, file contents, iCloud identifiers, or other sensitive information.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
+                Button {
+                    submit()
+                } label: {
+                    Label("Open in GitHub", systemImage: "paperplane.fill")
+                }
+                .disabled(message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            } footer: {
+                Text("GitHub will open so you can review and publish the report yourself.")
+            }
+        }
+        .navigationTitle("Feedback")
+    }
+
+    private var appVersion: String {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
+        return "\(version) (\(build))"
+    }
+
+    private func submit() {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "github.com"
+        components.path = "/tiburonns/byway/issues/new"
+        components.queryItems = [
+            URLQueryItem(name: "title", value: "[\(category.issuePrefix)] "),
+            URLQueryItem(
+                name: "body",
+                value: """
+                \(message)
+
+                ---
+                App: byway
+                Version: \(appVersion)
+                """
+            )
+        ]
+
+        if let url = components.url {
+            openURL(url)
+        }
     }
 }

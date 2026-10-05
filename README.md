@@ -46,6 +46,12 @@ The AltStore build uses on-device storage so it can be re-signed without the dev
 - AltStore Classic or another compatible IPA installer for the published IPA
 - Apple Shortcuts
 
+## Contact and feedback
+
+Questions, suggestions, bug reports, and general feedback can be sent from **Settings → Support** in byway or directly through [GitHub Issues](https://github.com/tiburonns/byway/issues). The app prepares the report locally and opens GitHub so it can be reviewed before publication.
+
+Do not include passwords, archive passphrases, file contents, iCloud identifiers, or other sensitive information. Security vulnerabilities should use GitHub's private **Security → Report a vulnerability** flow.
+
 ## Build and tests
 
 ```sh
