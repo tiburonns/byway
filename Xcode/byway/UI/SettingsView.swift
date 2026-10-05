@@ -156,6 +156,10 @@ struct SettingsView: View {
                     "Questions, suggestions, bugs & feedback",
                     destination: URL(string: "https://github.com/tiburonns/byway/issues/new?template=feedback.yml")!
                 )
+                Link(
+                    "Support development on Patreon",
+                    destination: URL(string: "https://www.patreon.com/tiburonns")!
+                )
             }
 
             Section("Privacy") {
