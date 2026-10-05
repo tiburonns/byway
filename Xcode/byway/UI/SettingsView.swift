@@ -151,6 +151,13 @@ struct SettingsView: View {
                     .font(.callout)
             }
 
+            Section("Support & feedback") {
+                Link(
+                    "Questions, suggestions, bugs & feedback",
+                    destination: URL(string: "https://github.com/tiburonns/byway/issues/new?template=feedback.yml")!
+                )
+            }
+
             Section("Privacy") {
                 Label("No account and no analytics", systemImage: "hand.raised.fill")
                 Text("Your variables remain in the app sandbox or your private iCloud Drive container.")
