@@ -244,7 +244,7 @@ struct SettingsView: View {
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown"
         var components = URLComponents()
         components.scheme = "mailto"
-        components.path = "adrianbarcenasm37@gmail.com"
+        components.path = "tiburonns@icloud.com"
         components.queryItems = [
             URLQueryItem(name: "subject", value: "[Byway] [\(feedbackCategory)]"),
             URLQueryItem(name: "body", value: "\(feedbackMessage)\n\nByway \(version) (\(build))")
