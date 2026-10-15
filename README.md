@@ -30,6 +30,10 @@ Open **Byway → Settings → Language** and choose System Default, English, or 
 
 ## Appearance
 
+### Feedback and support
+
+Settings includes a **Bugs, comments & suggestions** form. It opens a pre-addressed email draft; review and send it yourself. Reports are not transmitted in the background.
+
 Open **Byway → Settings → Appearance** to choose the app accent color. You can use the app default, one of the built-in presets, or a fully custom color. The preference is stored locally and updates tabs, buttons, controls, selections, and other interactive elements immediately while preserving the system light/dark appearance.
 
 ## AltStore

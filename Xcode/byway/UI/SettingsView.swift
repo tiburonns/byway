@@ -10,6 +10,7 @@ struct SettingsView: View {
     }
 
     @Environment(VariableStore.self) private var store
+    @Environment(\.openURL) private var openURL
     @State private var exportDocument = ArchiveDocument()
     @State private var isExporting = false
     @State private var isImporting = false
@@ -20,6 +21,8 @@ struct SettingsView: View {
     @State private var pendingImport: PendingImport?
     @State private var canUndoImport = false
     @State private var statusMessage: String?
+    @State private var feedbackCategory = "Bug"
+    @State private var feedbackMessage = ""
     @AppStorage(AppLanguage.storageKey) private var languageValue = AppLanguage.system.rawValue
     @AppStorage(AppAccentColor.storageKey) private var accentColorValue = AppAccentColor.system.rawValue
     @AppStorage(AppAccentColor.customHexStorageKey) private var customAccentHex = AppAccentColor.defaultCustomHex
@@ -157,6 +160,19 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+
+            Section("Bugs, comments & suggestions") {
+                Picker("Category", selection: $feedbackCategory) {
+                    ForEach(["Bug", "Comment", "Suggestion", "Other"], id: \.self) { Text($0) }
+                }
+                TextField("Message", text: $feedbackMessage, axis: .vertical)
+                    .lineLimit(5...10)
+                Button("Continue in email", action: sendFeedback)
+                    .disabled(feedbackMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                Text("Your email app opens a draft. Review and send it there.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
         }
         .navigationTitle("Settings")
         .fileExporter(
@@ -221,6 +237,19 @@ struct SettingsView: View {
 
     private var selectedAccent: AppAccentColor {
         AppAccentColor(rawValue: accentColorValue) ?? .system
+    }
+
+    private func sendFeedback() {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown"
+        var components = URLComponents()
+        components.scheme = "mailto"
+        components.path = "tiburonns@icloud.com"
+        components.queryItems = [
+            URLQueryItem(name: "subject", value: "[Byway] [\(feedbackCategory)]"),
+            URLQueryItem(name: "body", value: "\(feedbackMessage)\n\nByway \(version) (\(build))")
+        ]
+        if let url = components.url { openURL(url) }
     }
 
     private var selectedAccentColor: Color {

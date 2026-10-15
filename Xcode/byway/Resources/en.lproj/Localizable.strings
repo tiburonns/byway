@@ -2,6 +2,15 @@
 "History" = "History";
 "Settings" = "Settings";
 "Language" = "Language";
+"Bugs, comments & suggestions" = "Bugs, comments & suggestions";
+"Category" = "Category";
+"Message" = "Message";
+"Continue in email" = "Continue in email";
+"Your email app opens a draft. Review and send it there." = "Your email app opens a draft. Review and send it there.";
+"Bug" = "Bug";
+"Comment" = "Comment";
+"Suggestion" = "Suggestion";
+"Other" = "Other";
 "App language" = "App language";
 "System default" = "System default";
 "English" = "English";
