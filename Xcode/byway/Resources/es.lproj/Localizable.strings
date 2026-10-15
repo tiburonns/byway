@@ -2,6 +2,15 @@
 "History" = "Historial";
 "Settings" = "Ajustes";
 "Language" = "Idioma";
+"Bugs, comments & suggestions" = "Errores, comentarios y sugerencias";
+"Category" = "Categoría";
+"Message" = "Mensaje";
+"Continue in email" = "Continuar en correo";
+"Your email app opens a draft. Review and send it there." = "Tu app de correo abre un borrador. Revísalo y envíalo desde allí.";
+"Bug" = "Error";
+"Comment" = "Comentario";
+"Suggestion" = "Sugerencia";
+"Other" = "Otro";
 "App language" = "Idioma de la aplicación";
 "System default" = "Predeterminado del sistema";
 "English" = "Inglés";

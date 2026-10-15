@@ -26,6 +26,10 @@ Abre **Byway → Ajustes → Idioma** y elige Predeterminado del sistema, Englis
 
 ## Apariencia
 
+### Comentarios y soporte
+
+Ajustes incluye el formulario **Errores, comentarios y sugerencias**. Abre un borrador de correo dirigido al desarrollador; revísalo y envíalo tú. Los reportes no se transmiten en segundo plano.
+
 Abre **Byway → Ajustes → Apariencia** para elegir el color de acento de la aplicación. Puedes usar el valor predeterminado, uno de los colores incluidos o un color completamente personalizado. La preferencia se guarda localmente y se aplica de inmediato a pestañas, botones, controles, selecciones y otros elementos interactivos, respetando el modo claro u oscuro del sistema.
 
 ## AltStore
